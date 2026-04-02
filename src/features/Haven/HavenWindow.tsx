@@ -58,7 +58,9 @@ export function HavenWindow({
 }: HavenWindowProps) {
   const [winState, setWinState] = useState<WindowState>('closed')
   const [menuOpen, setMenuOpen] = useState(false)
-  const [messages, setMessages] = useState<Message[]>([])
+  const [messages, setMessages] = useState<Message[]>(() => {
+    try { return JSON.parse(localStorage.getItem(`haven-chat:${memberId}`) || '[]') } catch { return [] }
+  })
   const [loading, setLoading] = useState(false)
   const [learnMoreOpen, setLearnMoreOpen] = useState(false)
   const [memberChatOpen, setMemberChatOpen] = useState(false)
@@ -84,6 +86,11 @@ export function HavenWindow({
     return () => { cancelledRef.current = true }
   }, [defaultBottom, defaultRight, defaultWidth, defaultHeight])
 
+  // Persist chat history to localStorage whenever messages change
+  useEffect(() => {
+    localStorage.setItem(`haven-chat:${memberId}`, JSON.stringify(messages))
+  }, [messages, memberId])
+
   /* ── Show confirmation or no-data message on first open ── */
   useEffect(() => {
     if (winState !== 'open' || openMsgShownRef.current) return
@@ -97,8 +104,8 @@ export function HavenWindow({
         content: `No clinical data is currently available for ${memberName} in Haven.\n\nPlease verify the member's record in GuidingCare before proceeding. Haven cannot answer clinical questions for this member until their data is available in the system.`,
         isError: true,
       }])
-    } else if (switchConfirmation) {
-      // Acknowledge the member switch
+    } else if (switchConfirmation && messages.length === 0) {
+      // Only show switch confirmation if there's no existing chat history
       setMessages([{
         id: `sys-${Date.now()}`,
         role: 'assistant',
