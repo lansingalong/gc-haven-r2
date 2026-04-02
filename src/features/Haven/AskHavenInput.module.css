@@ -1,0 +1,72 @@
+/* Haven — AskHavenInput */
+.root {
+  padding: 0 23.75px;
+  flex-shrink: 0;
+}
+
+.bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: var(--color-bg-default);
+  border-radius: 50px;
+  padding: 14px 16px;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+}
+
+.left {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  flex: 1;
+  min-width: 0;
+}
+
+.input {
+  flex: 1;
+  border: none;
+  outline: none; /* Focus shown on parent .bar via :focus-within */
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-h6);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  background: transparent;
+  min-width: 0;
+}
+
+.input::placeholder {
+  color: var(--color-text-disabled);
+}
+
+.sendBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  color: var(--color-action-active);
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.sendBtn:hover:not(:disabled) {
+  color: var(--color-primary);
+}
+
+.sendBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.sendBtn:disabled {
+  cursor: default;
+}
+
+.bar:focus-within {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}

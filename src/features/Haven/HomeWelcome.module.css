@@ -1,0 +1,14 @@
+/* Haven — HomeWelcome */
+.root {
+  padding: 0 0 var(--spacing-4);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.prompts {
+  margin-top: var(--spacing-2);
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
