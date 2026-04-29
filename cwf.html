@@ -1872,9 +1872,12 @@
           <!-- Action toolbar -->
           <div style="background:var(--white);border-bottom:2px solid var(--teal);padding:0 16px;display:flex;align-items:stretch;">
             <div style="display:flex;align-items:center;flex:1;gap:0;">
-              <div style="padding:7px 12px 7px 0;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;border-right:1px solid var(--border-light);white-space:nowrap;"><span style="font-size:16px;font-weight:900;line-height:1;letter-spacing:-1px;">⋮</span> Action</div>
+              <label style="padding:7px 12px 7px 0;font-size:12px;color:var(--text-secondary);cursor:pointer;display:flex;align-items:center;gap:5px;border-right:1px solid var(--border-light);white-space:nowrap;"><input type="checkbox" id="cpSelectAll" style="accent-color:var(--teal);width:13px;height:13px;" /> Select All</label>
+              <div style="padding:7px 12px;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;"><span style="font-size:16px;font-weight:900;line-height:1;letter-spacing:-1px;">⋮</span> Action</div>
+              <div style="padding:7px 12px;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;"><span class="material-icons" style="font-size:14px;">expand_more</span> Expand All</div>
               <div style="padding:7px 12px;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;"><span class="material-icons" style="font-size:14px;">description</span> Export to PDF</div>
               <div style="padding:7px 12px;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;"><span class="material-icons" style="font-size:14px;">format_list_bulleted</span> Full Care Plan</div>
+              <div style="padding:7px 12px;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;"><span class="material-icons" style="font-size:14px;">swap_vert</span> Sort Expanded View</div>
               <div style="padding:7px 12px;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;"><span class="material-icons" style="font-size:14px;">add_circle_outline</span> Add OGI</div>
               <div style="padding:7px 12px;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;white-space:nowrap;"><span class="material-icons" style="font-size:14px;">add_circle_outline</span> Add Manual OGI</div>
             </div>
@@ -1883,7 +1886,75 @@
               <div style="padding:7px 12px 4px;font-size:12px;color:var(--teal);cursor:pointer;display:flex;align-items:center;gap:4px;border-bottom:3px solid #E07820;white-space:nowrap;"><span class="material-icons" style="font-size:14px;">table_chart</span> Care Plan Details</div>
             </div>
           </div>
-          <div style="background:var(--white);min-height:300px;"></div>
+          <!-- Care Plan OGI card -->
+          <div style="background:var(--white);padding:0 16px 16px;">
+            <div id="cp-ogi-card" style="border:1px solid var(--border);border-radius:4px;margin-top:14px;overflow:hidden;">
+              <!-- Top row: Opportunity / Goal / Condition -->
+              <div style="display:flex;align-items:flex-start;padding:12px 14px 10px;gap:16px;border-bottom:1px solid var(--border-light);">
+                <div style="flex:0 0 240px;display:flex;flex-direction:column;gap:3px;">
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <span style="display:inline-flex;align-items:center;justify-content:center;width:22px;height:22px;background:#E07820;border-radius:3px;flex-shrink:0;">
+                      <span class="material-icons" style="font-size:13px;color:#fff;">edit_note</span>
+                    </span>
+                    <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">Opportunity</span>
+                  </div>
+                  <span style="font-size:12px;color:var(--text-primary);line-height:1.4;padding-left:28px;">Improve Knowledge and Skills in Managing Diabetes</span>
+                </div>
+                <div style="flex:1;display:flex;flex-direction:column;gap:3px;">
+                  <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">Goal</span>
+                  <span style="font-size:12px;color:var(--text-primary);line-height:1.4;">Member improves knowledge and self-management skills for Type 2 Diabetes over the next year.</span>
+                </div>
+                <div style="flex:0 0 140px;display:flex;flex-direction:column;gap:3px;text-align:right;">
+                  <span style="font-size:11px;font-weight:700;color:var(--text-secondary);">Condition</span>
+                  <span style="font-size:12px;color:var(--text-primary);">Type 2 Diabetes (T2DM)</span>
+                </div>
+              </div>
+              <!-- Middle row: Select / Eligibility / Recommended / Priority / Sign Off -->
+              <div style="display:flex;align-items:center;gap:20px;padding:8px 14px;border-bottom:1px solid var(--border-light);background:#fafafa;">
+                <label style="display:flex;align-items:center;gap:6px;font-size:12px;font-weight:600;color:var(--text-secondary);cursor:pointer;">
+                  <input type="checkbox" style="accent-color:var(--teal);width:13px;height:13px;" /> Select
+                </label>
+                <div style="display:flex;align-items:center;gap:5px;font-size:12px;color:var(--text-secondary);">
+                  <span style="font-weight:600;">Eligibility</span>
+                  <span style="display:inline-flex;align-items:center;gap:3px;color:#2e7d32;font-weight:600;"><span class="material-icons" style="font-size:14px;color:#2e7d32;">check_circle</span> Active</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:5px;font-size:12px;margin-left:8px;">
+                  <span class="material-icons" style="font-size:16px;color:#E07820;">bookmark</span>
+                  <span style="font-weight:700;color:var(--text-primary);">Recommended</span>
+                </div>
+                <div style="display:flex;align-items:center;gap:6px;font-size:12px;margin-left:auto;">
+                  <span style="font-weight:600;color:var(--text-secondary);">Priority</span>
+                  <select style="height:26px;border:1px solid var(--border);border-radius:3px;padding:0 18px 0 6px;font-size:12px;font-family:var(--font);outline:none;appearance:none;background:white url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E&quot;) no-repeat right 4px center;color:#E07820;font-weight:700;cursor:pointer;"><option>High</option><option>Medium</option><option>Low</option></select>
+                </div>
+                <label style="display:flex;align-items:center;gap:6px;font-size:12px;color:var(--text-secondary);cursor:pointer;border:1px solid var(--border);border-radius:3px;padding:3px 10px;">
+                  <input type="checkbox" style="accent-color:var(--teal);width:13px;height:13px;" /> Sign Off
+                </label>
+              </div>
+              <!-- Intervention row -->
+              <div style="padding:10px 14px 6px;">
+                <div style="font-size:11px;font-weight:700;color:var(--text-secondary);margin-bottom:3px;">Intervention</div>
+                <div style="font-size:12px;color:var(--text-primary);line-height:1.4;">Enroll member in a Diabetes Self-Management Education (DSME) program to build knowledge and skills for managing Type 2 Diabetes.</div>
+              </div>
+              <!-- Additional Information -->
+              <div style="padding:6px 14px 12px;">
+                <a href="#" style="color:var(--link);display:inline-flex;align-items:center;gap:4px;font-size:12px;font-weight:600;text-decoration:none;">
+                  <span class="material-icons" style="font-size:15px;">info_outline</span> Additional Information
+                </a>
+              </div>
+            </div>
+            <!-- Pagination -->
+            <div style="display:flex;align-items:center;gap:6px;padding-top:10px;font-size:12px;color:var(--text-secondary);">
+              <button style="border:1px solid var(--border);background:white;width:24px;height:24px;border-radius:3px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:11px;">|◀</button>
+              <button style="border:1px solid var(--border);background:white;width:24px;height:24px;border-radius:3px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:11px;">◀</button>
+              <span style="border:1px solid var(--teal);background:white;color:var(--teal);width:24px;height:24px;border-radius:3px;display:inline-flex;align-items:center;justify-content:center;font-weight:700;">1</span>
+              <button style="border:1px solid var(--border);background:white;width:24px;height:24px;border-radius:3px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:11px;">▶</button>
+              <button style="border:1px solid var(--border);background:white;width:24px;height:24px;border-radius:3px;cursor:pointer;display:inline-flex;align-items:center;justify-content:center;font-size:11px;">▶|</button>
+              <select style="height:26px;border:1px solid var(--border);border-radius:3px;padding:0 18px 0 6px;font-size:12px;font-family:var(--font);outline:none;appearance:none;background:white url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E&quot;) no-repeat right 4px center;cursor:pointer;"><option>20</option><option>50</option><option>100</option></select>
+              <span>items per page</span>
+              <span style="margin-left:auto;">1 - 1 of 1 items</span>
+              <span class="material-icons" style="font-size:16px;cursor:pointer;color:var(--teal);">refresh</span>
+            </div>
+          </div>
         </div>
 
         <!-- SUB-PANEL: Care Plan Barriers -->
@@ -4811,7 +4882,167 @@ function openScriptResponseModal() {
   // Initialize default member profile on page load
   populateProfile('jackson-thomas');
 
+  // ── Suki: open Add Note modal on the Notes tab ──
+  window._gcOpenSukiNote = function(noteText) {
+    // Activate Activity Record panel
+    document.querySelectorAll('.left-panel').forEach(function(p) { p.style.display = ''; p.classList.remove('active'); });
+    document.querySelectorAll('.gc-left-item').forEach(function(li) { li.classList.remove('active'); });
+    var arNav = document.querySelector('.gc-left-item[data-left="activity-record"]');
+    if (arNav) arNav.classList.add('active');
+    var arPanel = document.getElementById('panel-activity-record');
+    if (arPanel) arPanel.classList.add('active');
+
+    // Switch to Notes tab
+    document.querySelectorAll('#activityTabs .gc-tab').forEach(function(t) {
+      t.classList.remove('active'); t.style.color = ''; t.style.borderBottomColor = '';
+    });
+    document.querySelectorAll('.ar-tab-panel').forEach(function(p) { p.style.display = 'none'; p.classList.remove('active'); });
+    var notesTab = document.querySelector('#activityTabs .gc-tab[data-artab="notes"]');
+    if (notesTab) { notesTab.classList.add('active'); notesTab.style.color = 'var(--teal)'; notesTab.style.borderBottomColor = 'var(--teal)'; }
+    var notesPanel = document.getElementById('artab-notes');
+    if (notesPanel) { notesPanel.style.display = ''; notesPanel.classList.add('active'); }
+
+    // Pre-fill modal
+    var now = new Date();
+    var pad = function(n) { return String(n).padStart(2,'0'); };
+    var h = now.getHours(); var ampm = h < 12 ? 'AM' : 'PM';
+    var dateStr = pad(now.getMonth()+1)+'/'+pad(now.getDate())+'/'+now.getFullYear()+' '+pad(h)+':'+pad(now.getMinutes())+':'+pad(now.getSeconds())+' '+ampm;
+    var dateEl = document.getElementById('sukiNoteDate');
+    if (dateEl) dateEl.value = dateStr;
+    var memberEl = document.getElementById('sukiNoteMember');
+    if (memberEl) {
+      var m = memberData[currentMemberKey];
+      if (m) memberEl.textContent = m.name;
+    }
+    var textarea = document.getElementById('sukiNoteText');
+    if (textarea) textarea.value = noteText || '';
+    var consentCheck = document.getElementById('sukiConsentCheck');
+    if (consentCheck) consentCheck.checked = false;
+    var alertCb = document.getElementById('sukiNoteAlert');
+    if (alertCb) { alertCb.checked = false; document.getElementById('sukiNoteAlertTrack').style.background = '#ccc'; document.getElementById('sukiNoteAlertThumb').style.left = '2px'; }
+    var internalRadio = document.querySelector('input[name="sukiNoteVisibility"][value="internal"]');
+    if (internalRadio) internalRadio.checked = true;
+    document.getElementById('addNoteModal').classList.add('open');
+  };
+
+  window.saveSukiNote = function() {
+    var noteType = document.getElementById('sukiNoteType').value;
+    var noteText = document.getElementById('sukiNoteText').value.trim();
+    var dateVal  = document.getElementById('sukiNoteDate').value;
+    var consent = document.getElementById('sukiConsentCheck').checked;
+    if (!noteText || !consent) return;
+    var row = '<tr>' +
+      '<td><input type="checkbox" /></td>' +
+      '<td>' + noteType + ' <span style="display:inline-block;font-size:10px;font-weight:700;color:var(--teal);background:var(--teal-light,rgba(49,94,123,0.1));border:1px solid var(--teal);border-radius:3px;padding:1px 5px;vertical-align:middle;letter-spacing:0.02em;">AI Note</span></td>' +
+      '<td>' + noteText.replace(/</g,'&lt;').replace(/>/g,'&gt;') + '</td>' +
+      '<td><span class="material-icons" style="font-size:14px;color:var(--teal);cursor:pointer;">visibility</span></td>' +
+      '<td>N/A</td><td>N/A</td>' +
+      '<td>Beatrice Kanya : All Access Admin</td>' +
+      '<td>' + dateVal + '</td>' +
+      '<td>N/A</td><td>N/A</td>' +
+      '</tr>';
+    if (!memberTabData[currentMemberKey].notes) memberTabData[currentMemberKey].notes = [];
+    memberTabData[currentMemberKey].notes.unshift(row);
+    var notesTbody = document.querySelector('#artab-notes .gc-table tbody');
+    if (notesTbody) notesTbody.innerHTML = memberTabData[currentMemberKey].notes.join('');
+    document.getElementById('addNoteModal').classList.remove('open');
+  };
+
+  // Listen for Suki note signal via postMessage (primary — from parent Haven React app)
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'SUKI_NOTE_READY' && window._gcOpenSukiNote) {
+      window._gcOpenSukiNote(e.data.noteText || '');
+    }
+  });
+
+  // Also listen via storage event (fallback for cross-tab on same origin)
+  window.addEventListener('storage', function(e) {
+    if (e.key === 'suki-note-ready' && e.newValue && window._gcOpenSukiNote) {
+      localStorage.removeItem('suki-note-ready');
+      window._gcOpenSukiNote(e.newValue);
+    }
+  });
+
 })();
+
+// ── Haven → CWF bridge ──
+window.addEventListener('message', function(e) {
+  if (!e.data) return;
+
+  // Add an activity row to Outstanding Activities
+  if (e.data.type === 'HAVEN_ADD_ACTIVITY') {
+    var activityTypeVal = e.data.activityType || 'N/A';
+    var contactTypeVal  = e.data.contactType  || 'N/A';
+    var now = new Date();
+    var mm  = String(now.getMonth()+1).padStart(2,'0');
+    var dd  = String(now.getDate()).padStart(2,'0');
+    var yyyy = now.getFullYear();
+    var hh  = String(now.getHours()).padStart(2,'0');
+    var mi  = String(now.getMinutes()).padStart(2,'0');
+    var dateStr    = mm+'/'+dd+'/'+yyyy;
+    var timeStr    = hh+':'+mi;
+    var createdStr = mm+'/'+dd+'/'+yyyy+' '+hh+':'+mi+':'+String(now.getSeconds()).padStart(2,'0');
+
+    var outTbody = document.getElementById('outstandingTbody');
+    if (outTbody) {
+      var otr = document.createElement('tr');
+      otr.dataset.dynamic = 'true';
+      otr.style.background = '#FFFDE7';
+      otr.innerHTML =
+        '<td><input type="checkbox" /></td>' +
+        '<td>' + activityTypeVal + '</td>' +
+        '<td>' + contactTypeVal + '</td>' +
+        '<td>High</td>' +
+        '<td>' + dateStr + '</td>' +
+        '<td>N/A</td>' +
+        '<td>' + timeStr + '</td>' +
+        '<td>N/A</td><td>N/A</td><td>N/A</td>' +
+        '<td>Lansing Cai : All Access Admin</td>' +
+        '<td>N/A</td>' +
+        '<td>Accepted</td>' +
+        '<td>Lansing Cai : All Access Admin</td>' +
+        '<td>N/A</td>' +
+        '<td style="font-size:10px;">' + createdStr + '</td>' +
+        '<td></td>' +
+        '<td>' +
+          '<span class="material-icons" style="font-size:18px;color:#5a8aab;cursor:pointer;" title="Edit">edit_note</span> ' +
+          '<span class="material-icons" style="font-size:18px;color:#315E7B;cursor:pointer;" title="Perform Activity">thumb_up</span> ' +
+          '<span class="material-icons" style="font-size:18px;color:#5a8aab;cursor:pointer;" title="Delete">delete</span>' +
+        '</td>';
+      outTbody.insertBefore(otr, outTbody.firstChild);
+      setTimeout(function() { otr.style.transition = 'background 1.5s'; otr.style.background = ''; }, 100);
+    }
+  }
+
+  // Navigate to Activity Record → Outstanding Activities tab
+  if (e.data.type === 'HAVEN_NAVIGATE_OUTSTANDING') {
+    document.querySelectorAll('.gc-left-item').forEach(function(li) { li.classList.remove('active'); });
+    var arNav = document.querySelector('.gc-left-item[data-left="activity-record"]');
+    if (arNav) arNav.classList.add('active');
+    document.querySelectorAll('.left-panel').forEach(function(p) { p.style.display = 'none'; p.classList.remove('active'); });
+    var arPanel = document.getElementById('panel-activity-record');
+    if (arPanel) { arPanel.style.display = ''; arPanel.classList.add('active'); }
+    document.querySelectorAll('#activityTabs .gc-tab').forEach(function(t) { t.classList.remove('active'); t.style.color = ''; t.style.borderBottomColor = ''; });
+    document.querySelectorAll('.ar-tab-panel').forEach(function(p) { p.style.display = 'none'; p.classList.remove('active'); });
+    var oaTab = document.querySelector('#activityTabs .gc-tab[data-artab="outstanding-activities"]');
+    if (oaTab) { oaTab.classList.add('active'); oaTab.style.color = 'var(--teal)'; oaTab.style.borderBottomColor = 'var(--teal)'; }
+    var oaPanel = document.getElementById('artab-outstanding-activities');
+    if (oaPanel) { oaPanel.style.display = ''; oaPanel.classList.add('active'); }
+  }
+
+  // Navigate to Care Plan left panel → Care Plan Overview sub-tab
+  if (e.data.type === 'HAVEN_NAVIGATE_CARE_PLAN') {
+    document.querySelectorAll('.gc-left-item').forEach(function(li) { li.classList.remove('active'); });
+    var cpNav = document.querySelector('.gc-left-item[data-left="care-plan"]');
+    if (cpNav) cpNav.classList.add('active');
+    document.querySelectorAll('.left-panel').forEach(function(p) { p.style.display = 'none'; p.classList.remove('active'); });
+    var cpPanel = document.getElementById('panel-care-plan');
+    if (cpPanel) { cpPanel.style.display = ''; cpPanel.classList.add('active'); }
+    cpTier1Tab('team');
+    cpSubTab('overview');
+  }
+});
+
 </script>
 
 <!-- ══════════════ ADD ACTIVITY MODAL ══════════════ -->
@@ -5154,6 +5385,81 @@ function openScriptResponseModal() {
         <div class="hra-sidebar-title">Quick Links</div>
         <div class="hra-sidebar-body"></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════ SUKI ADD NOTE MODAL ══════════════ -->
+<div class="gc-modal-overlay" id="addNoteModal" role="dialog" aria-modal="true" aria-labelledby="addNoteModalTitle">
+  <div class="gc-modal" style="max-width:680px;">
+    <div class="gc-modal-title">
+      <span id="addNoteModalTitle">Add Note</span>
+      <button onclick="document.getElementById('addNoteModal').classList.remove('open')" aria-label="Close">×</button>
+    </div>
+    <div class="gc-modal-accent"></div>
+    <div class="gc-modal-body">
+      <div style="display:flex;gap:16px;flex-wrap:wrap;">
+        <div class="gc-modal-field" style="flex:1;min-width:180px;">
+          <label>Health Note Type <span class="req">*</span></label>
+          <select class="gc-modal-select" id="sukiNoteType">
+            <option>Select</option>
+            <option>Behavioral Clinical History</option>
+            <option>Disaster Planning</option>
+            <option>Durable Medication Equipment (DME)</option>
+            <option>General</option>
+            <option>General Note</option>
+            <option>Grievance</option>
+            <option>HCBS Note</option>
+            <option>Member Note</option>
+            <option>OHCW: Change of Residence</option>
+            <option>Provider Note</option>
+            <option>Rejection</option>
+            <option>Safety Precaution and Test</option>
+          </select>
+        </div>
+        <div class="gc-modal-field" style="flex:1;min-width:180px;">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:4px;">
+            <label style="margin:0;">Entered Date</label>
+            <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text-primary);white-space:nowrap;">
+              <span style="position:relative;display:inline-block;width:32px;height:18px;flex-shrink:0;">
+                <input type="checkbox" id="sukiNoteAlert" style="opacity:0;width:0;height:0;position:absolute;" />
+                <span id="sukiNoteAlertTrack" style="position:absolute;inset:0;border-radius:9px;background:#ccc;transition:background 0.2s;cursor:pointer;" onclick="var cb=document.getElementById('sukiNoteAlert');cb.checked=!cb.checked;document.getElementById('sukiNoteAlertTrack').style.background=cb.checked?'var(--teal)':'#ccc';document.getElementById('sukiNoteAlertThumb').style.left=cb.checked?'16px':'2px';"></span>
+                <span id="sukiNoteAlertThumb" style="position:absolute;top:2px;left:2px;width:14px;height:14px;border-radius:50%;background:#fff;transition:left 0.2s;pointer-events:none;box-shadow:0 1px 3px rgba(0,0,0,.25);"></span>
+              </span>
+              Note is Alert
+            </label>
+          </div>
+          <input class="gc-modal-input" type="text" id="sukiNoteDate" readonly />
+        </div>
+      </div>
+      <div class="gc-modal-field" style="gap:8px;">
+        <label style="display:flex;align-items:flex-start;gap:8px;cursor:pointer;font-weight:400;">
+          <input type="checkbox" id="sukiConsentCheck" style="margin-top:2px;width:15px;height:15px;accent-color:var(--teal);flex-shrink:0;" />
+          <span style="font-weight:600;color:var(--text-primary);">Consent was provided</span>
+        </label>
+        <p style="margin:4px 0 0 23px;font-size:12px;color:var(--text-secondary);line-height:1.55;">Consent must be obtained before recording; otherwise, notes cannot be saved in GuidingCare. If consent hasn't been obtained, you may copy the notes and add them manually.</p>
+      </div>
+      <div class="gc-modal-field">
+        <label>Note <span class="req">*</span></label>
+        <textarea class="gc-modal-input" id="sukiNoteText" rows="8" style="height:180px;resize:vertical;padding:8px;line-height:1.55;"></textarea>
+      </div>
+      <div class="gc-modal-field" style="gap:6px;">
+        <label>Notes viewable by</label>
+        <div style="display:flex;gap:20px;">
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:400;">
+            <input type="radio" name="sukiNoteVisibility" value="all" style="accent-color:var(--teal);width:15px;height:15px;" />
+            All Users
+          </label>
+          <label style="display:flex;align-items:center;gap:6px;cursor:pointer;font-size:13px;font-weight:400;">
+            <input type="radio" name="sukiNoteVisibility" value="internal" checked style="accent-color:var(--teal);width:15px;height:15px;" />
+            Internal Users Only
+          </label>
+        </div>
+      </div>
+    </div>
+    <div class="gc-modal-footer">
+      <button class="gc-btn gc-btn-primary" onclick="saveSukiNote()">Save Notes</button>
+      <button class="gc-btn gc-btn-secondary" onclick="document.getElementById('addNoteModal').classList.remove('open')">Cancel</button>
     </div>
   </div>
 </div>
