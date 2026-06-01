@@ -51,6 +51,10 @@
   white-space: pre-wrap;
 }
 
+.assistantBubble p {
+  margin: 0 0 2px;
+}
+
 /* ── Actions row (copy + thumbs) ── */
 .actions {
   display: flex;

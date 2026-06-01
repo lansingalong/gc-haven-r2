@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import ReactMarkdown from 'react-markdown'
 import { Icon } from '@/components/Icons'
 import contentCopy from '@/assets/content_copy.png'
 import checkIcon from '@/assets/check.png'
@@ -101,7 +102,7 @@ function AssistantMessage({
   return (
     <div className={styles.assistantGroup}>
       <div className={styles.row}>
-        <div className={styles.assistantBubble}>{msg.content}</div>
+        <div className={styles.assistantBubble}><ReactMarkdown>{msg.content}</ReactMarkdown></div>
       </div>
       {msg.followUp && (
         <p className={styles.followUpText}>{msg.followUp}</p>

@@ -3,6 +3,7 @@ import { Icon } from '@/components/Icons'
 import { MemberHeader } from './MemberHeader'
 import { ChatWelcome } from './ChatWelcome'
 import { MemberDetailMenu } from './MemberDetailMenu'
+import { SummarizeMenu } from './SummarizeMenu'
 import { ChatMessages, type Message } from './ChatMessages'
 import { AskHavenInput } from './AskHavenInput'
 import styles from './HavenWindow.module.css'
@@ -120,10 +121,11 @@ export function HavenWindow({
     const replyMsg: Message = {
       id: `a-${Date.now() + 1}`,
       role: 'assistant',
-      content: `Here's what I can and cannot help with:\n\nI don't have access to:\n• Clinical decisions or diagnosis\n• Systems outside this platform\n• Guaranteed accurate information — always verify yourself\n\nI have access to:\n• Member demographics\n• Clinical history\n• Care plan (goals, interventions)\n• Assessments\n• Eligibility\n• Care gaps\n• Claims data`,
+      content: `**I have access to:**\n• Member demographics\n• Clinical history\n• Care plan (goals, interventions)\n• Assessments\n• Eligibility\n• Care gaps\n• Claims data\n\n**I cannot help with:**\n• Clinical decisions or diagnosis\n• Systems outside this platform\n• Guaranteed accurate information, always verify yourself`,
     }
     setMessages(prev => [...prev, userMsg, replyMsg])
     setMenuOpen(false)
+    setSummarizeMenuOpen(false)
     setLearnMoreOpen(true)
   }, [])
 
@@ -393,10 +395,26 @@ export function HavenWindow({
             {/* Member detail menu — floats above input bar (member view only) */}
             {!isHome && menuOpen && !hasMessages && (
               <div className={panelStyles.menuOverlay}>
-                <MemberDetailMenu
-                  onClose={() => setMenuOpen(false)}
-                  onSelect={sendMessage}
-                />
+                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setMenuOpen(false)} aria-label="Back">
+                  <Icon name="ArrowBack" size="sm" color="action" />
+                  Back
+                </button>
+                <div className={panelStyles.menuCard}>
+                  <MemberDetailMenu onClose={() => setMenuOpen(false)} onSelect={sendMessage} />
+                </div>
+              </div>
+            )}
+
+            {/* Summarize menu — floats above input bar (member view only) */}
+            {!isHome && summarizeMenuOpen && !hasMessages && (
+              <div className={panelStyles.menuOverlay}>
+                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setSummarizeMenuOpen(false)} aria-label="Back">
+                  <Icon name="ArrowBack" size="sm" color="action" />
+                  Back
+                </button>
+                <div className={panelStyles.menuCard}>
+                  <SummarizeMenu onClose={() => setSummarizeMenuOpen(false)} onSelect={sendMessage} />
+                </div>
               </div>
             )}
 
@@ -406,7 +424,7 @@ export function HavenWindow({
               <p className={panelStyles.disclaimer}>
                 Check your responses for accuracy.{' '}
                 <button type="button" className={panelStyles.disclaimerLink} onClick={handleLearnMore}>
-                  What this assistant can and cannot do
+                  What this assistant has access to
                 </button>
               </p>
             </div>
