@@ -1,0 +1,10 @@
+/* Quill — Avatar */
+.root {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  flex-shrink: 0;
+  overflow: hidden;
+  color: var(--color-action-active);
+}

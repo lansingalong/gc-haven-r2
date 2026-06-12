@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GuidingCare Design System</title>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<style>
+  :root {
+    /* Brand */
+    --teal:        #1378A3;
+    --teal-light:  #E3F2FA;
+    --teal-dark:   #0C5275;
+    --blue:        #1378A3;
+    --blue-light:  #E3F2FA;
+    --blue-dark:   #0C5275;
+    --link:        #1378A3;
+
+    /* Text */
+    --text-primary:   #333333;
+    --text-secondary: #555555;
+    --text-label:     #555555;
+    --text-value:     #333333;
+    --text-muted:     #888888;
+    --text-section:   #1378A3;   /* teal section headings */
+
+    /* Surfaces */
+    --white:          #FFFFFF;
+    --surface-light:  #F8F8F8;
+    --surface-nav:    #F2F2F2;
+    --surface-header: #FAFAFA;
+    --surface-banner: #1D9E75;
+
+    /* Borders */
+    --border:         #DDDDDD;
+    --border-light:   #EEEEEE;
+
+    /* Radius */
+    --r-sm: 3px;
+    --r-md: 4px;
+    --r-lg: 6px;
+
+    /* Type */
+    --font: 'Open Sans', Arial, sans-serif;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: var(--font); color: var(--text-primary); background: #EBEBEB; font-size: 13px; line-height: 1.5; }
+
+  /* ── Doc layout ── */
+  .page { display: flex; min-height: 100vh; }
+  .sidebar { width: 210px; flex-shrink: 0; background: var(--white); border-right: 1px solid var(--border); padding: 20px 0; position: sticky; top: 0; height: 100vh; overflow-y: auto; }
+  .content { flex: 1; padding: 36px 44px; max-width: 1080px; }
+  .sidebar-logo { padding: 0 16px 18px; border-bottom: 1px solid var(--border-light); }
+  .sidebar-logo h1 { font-size: 14px; font-weight: 700; }
+  .sidebar-logo span { font-size: 11px; color: var(--text-muted); }
+  .nav-section { padding: 14px 0 2px; }
+  .nav-label { font-size: 10px; font-weight: 700; letter-spacing: 0.8px; text-transform: uppercase; color: var(--text-muted); padding: 0 16px 6px; }
+  .nav-item { display: block; padding: 6px 16px; font-size: 12px; color: var(--text-secondary); cursor: pointer; }
+  .nav-item:hover, .nav-item.active { background: var(--teal-light); color: var(--teal-dark); }
+
+  /* ── Doc sections ── */
+  .section { margin-bottom: 60px; }
+  .section-title { font-size: 20px; font-weight: 700; margin-bottom: 6px; padding-bottom: 10px; border-bottom: 2px solid var(--teal); }
+  .section-desc { font-size: 13px; color: var(--text-muted); margin-bottom: 28px; line-height: 1.7; }
+  .subsection { margin-bottom: 36px; }
+  .subsection-title { font-size: 13px; font-weight: 700; margin-bottom: 14px; color: var(--text-primary); }
+  .component-demo { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-md) var(--r-md) 0 0; padding: 20px; }
+  .component-label { font-size: 11px; color: var(--text-muted); background: var(--surface-light); border: 1px solid var(--border); border-top: none; border-radius: 0 0 var(--r-md) var(--r-md); padding: 5px 12px; font-family: monospace; margin-bottom: 18px; }
+  .demo-row { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .token-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(160px, 1fr)); gap: 10px; }
+  .token-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-md); overflow: hidden; }
+  .token-swatch { height: 52px; }
+  .token-info { padding: 8px 10px; }
+  .token-name { font-size: 11px; font-weight: 700; }
+  .token-value { font-size: 10px; color: var(--text-muted); margin-top: 2px; font-family: monospace; }
+
+  /* ════════════════════════════════
+     ACTUAL GC COMPONENTS
+  ════════════════════════════════ */
+
+  /* ── Global nav (two-row) ── */
+  .gc-nav-outer { border-radius: var(--r-md); overflow: hidden; border: 1px solid var(--border); }
+  .gc-nav-top { background: var(--white); display: flex; align-items: center; gap: 0; padding: 0 12px; height: 36px; border-bottom: 1px solid var(--border-light); }
+  .gc-nav-logo { font-size: 15px; font-weight: 800; color: #003366; letter-spacing: -0.5px; margin-right: 14px; white-space: nowrap; }
+  .gc-nav-logo span { color: var(--teal); }
+  .gc-nav-context { font-size: 10px; line-height: 1.3; color: var(--text-secondary); border-left: 1px solid var(--border-light); padding-left: 10px; margin-right: 10px; }
+  .gc-nav-context a { color: var(--link); text-decoration: none; }
+  .gc-search { display: flex; align-items: center; gap: 4px; }
+  .gc-search-select { font-size: 11px; border: 1px solid var(--border); border-radius: var(--r-sm) 0 0 var(--r-sm); padding: 3px 6px; height: 24px; background: var(--surface-light); color: var(--text-secondary); appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='10' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 3px center; padding-right: 18px; }
+  .gc-search-input { border: 1px solid var(--border); border-left: none; height: 24px; padding: 0 8px; font-size: 11px; width: 200px; outline: none; }
+  .gc-search-btn { background: var(--surface-light); border: 1px solid var(--border); border-left: none; height: 24px; width: 26px; display: flex; align-items: center; justify-content: center; cursor: pointer; border-radius: 0 var(--r-sm) var(--r-sm) 0; font-size: 12px; color: var(--text-muted); }
+  .gc-advsearch { font-size: 11px; border: 1px solid var(--border); border-radius: var(--r-sm); padding: 3px 8px; height: 24px; background: var(--surface-light); cursor: pointer; color: var(--text-secondary); margin-left: 4px; }
+  .gc-nav-user { margin-left: auto; font-size: 11px; color: var(--text-secondary); text-align: right; line-height: 1.4; }
+  .gc-nav-user a { color: var(--link); }
+  .gc-nav-icons { display: flex; gap: 6px; align-items: center; margin-left: 10px; }
+  .gc-nav-icon-btn { width: 26px; height: 26px; display: flex; align-items: center; justify-content: center; color: var(--text-muted); font-size: 14px; cursor: pointer; border-radius: var(--r-sm); position: relative; }
+  .gc-nav-icon-btn:hover { background: var(--surface-light); }
+  .gc-nav-badge { position: absolute; top: 1px; right: 1px; width: 14px; height: 14px; background: #E53935; color: white; border-radius: 50%; font-size: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; }
+
+  .gc-nav-bottom { background: var(--surface-header); display: flex; align-items: center; gap: 0; padding: 0; height: 44px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+  .gc-nav-bottom-left { display: flex; align-items: center; height: 100%; border-right: 1px solid var(--border-light); padding: 0 8px; gap: 2px; }
+  .gc-shortcut { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; padding: 0 10px; height: 100%; font-size: 10px; color: var(--text-secondary); cursor: pointer; border-right: 1px solid var(--border-light); white-space: nowrap; }
+  .gc-shortcut:hover { background: var(--teal-light); color: var(--teal-dark); }
+  .gc-shortcut-icon { font-size: 16px; line-height: 1; }
+  .gc-toolbar { display: flex; align-items: center; height: 100%; margin-left: auto; }
+  .gc-tool { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px; padding: 0 9px; height: 100%; font-size: 10px; color: var(--text-secondary); cursor: pointer; white-space: nowrap; border-left: 1px solid var(--border-light); }
+  .gc-tool:hover { background: var(--teal-light); color: var(--teal-dark); }
+  .gc-tool-icon { font-size: 14px; }
+
+  /* ── Member banner ── */
+  .gc-member-banner { background: var(--white); border: 1px solid var(--border); padding: 6px 12px; display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-primary); }
+  .gc-banner-alert { background: #FFF3CD; border: 1px solid #FFCA28; border-radius: var(--r-sm); padding: 2px 8px; font-size: 11px; font-weight: 700; color: #7B5800; display: flex; align-items: center; gap: 4px; }
+  .gc-banner-name { font-weight: 700; font-size: 13px; }
+  .gc-banner-check { color: var(--teal); font-size: 14px; }
+  .gc-banner-edit { color: var(--link); font-size: 12px; cursor: pointer; margin-left: 4px; }
+
+  /* ── Left sidebar nav ── */
+  .gc-left-nav { width: 108px; background: var(--white); border-right: 1px solid var(--border); display: flex; flex-direction: column; padding: 8px 0; }
+  .gc-left-item { display: flex; flex-direction: column; align-items: center; gap: 3px; padding: 10px 4px; font-size: 10px; color: var(--text-secondary); cursor: pointer; border-left: 3px solid transparent; text-align: center; line-height: 1.2; }
+  .gc-left-item:hover { background: var(--surface-light); color: var(--teal); }
+  .gc-left-item.active { background: var(--teal-light); color: var(--teal-dark); border-left-color: var(--teal); font-weight: 700; }
+  .gc-left-icon { font-size: 18px; line-height: 1; }
+
+  /* ── Member detail tabs ── */
+  .gc-tabs { display: flex; border-bottom: 2px solid var(--border-light); padding: 0; margin-bottom: 0; }
+  .gc-tab { padding: 8px 14px; font-size: 12px; font-weight: 600; color: var(--text-muted); cursor: pointer; border-bottom: 2px solid transparent; margin-bottom: -2px; white-space: nowrap; }
+  .gc-tab:hover { color: var(--text-secondary); }
+  .gc-tab.active { color: var(--teal); border-bottom-color: var(--teal); }
+
+  /* ── Detail section card ── */
+  .gc-detail-card { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-sm); margin-bottom: 12px; }
+  .gc-detail-header { padding: 8px 14px; border-bottom: 1px solid var(--border-light); }
+  .gc-detail-heading { font-size: 12px; font-weight: 700; color: var(--text-section); }
+  .gc-detail-body { padding: 10px 14px; }
+  .gc-kv-row { display: flex; gap: 4px; font-size: 12px; line-height: 1.8; }
+  .gc-kv-label { color: var(--text-label); white-space: nowrap; min-width: 0; }
+  .gc-kv-value { color: var(--text-value); font-weight: 600; }
+  .gc-kv-na { color: var(--text-muted); font-style: italic; font-weight: 400; }
+  .gc-kv-link { color: var(--link); text-decoration: none; }
+  .gc-edit-inline { font-size: 11px; color: var(--link); cursor: pointer; display: flex; align-items: center; gap: 3px; float: right; margin-top: 2px; }
+
+  /* ── Data table ── */
+  .gc-table-wrap { border: 1px solid var(--border); border-radius: var(--r-sm); overflow: hidden; }
+  .gc-table-toolbar { background: var(--white); padding: 8px 12px; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 12px; }
+  .gc-table-action { display: flex; align-items: center; gap: 4px; font-size: 12px; color: var(--link); cursor: pointer; }
+  .gc-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+  .gc-table th { background: var(--surface-light); color: var(--text-secondary); font-weight: 700; padding: 6px 12px; border-bottom: 1px solid var(--border); border-right: 1px solid var(--border-light); text-align: left; height: 36px; white-space: nowrap; font-size: 12px; }
+  .gc-table th input[type="checkbox"] { accent-color: var(--teal); }
+  .gc-table td { padding: 5px 12px; border-bottom: 1px solid var(--border-light); border-right: 1px solid var(--border-light); height: 36px; color: var(--text-secondary); font-size: 12px; }
+  .gc-table tr:hover td { background: #F0FAF6; }
+  .gc-table-footer { background: var(--white); padding: 6px 12px; border-top: 1px solid var(--border-light); display: flex; align-items: center; gap: 8px; font-size: 12px; color: var(--text-muted); }
+  .gc-pager-btn { width: 22px; height: 22px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--white); display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 10px; color: var(--text-secondary); }
+  .gc-pager-btn.active { background: var(--teal); color: white; border-color: var(--teal); }
+
+  /* ── Search / Filter bar ── */
+  .gc-filter-bar { background: var(--white); border: 1px solid var(--border); padding: 10px 14px; display: flex; align-items: flex-end; gap: 12px; flex-wrap: wrap; }
+  .gc-filter-field { display: flex; flex-direction: column; gap: 3px; }
+  .gc-filter-label { font-size: 11px; font-weight: 700; color: var(--text-label); text-transform: uppercase; letter-spacing: 0.3px; }
+  .gc-filter-input { height: 28px; border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0 8px; font-size: 12px; font-family: var(--font); outline: none; width: 160px; }
+  .gc-filter-input:focus { border-color: var(--teal); }
+  .gc-filter-input-date { width: 130px; color: var(--text-muted); }
+  .gc-filter-select { height: 28px; border: 1px solid var(--border); border-radius: var(--r-sm); padding: 0 22px 0 8px; font-size: 12px; font-family: var(--font); outline: none; appearance: none; background: white url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24'%3E%3Cpath fill='%23888' d='M7 10l5 5 5-5z'/%3E%3C/svg%3E") no-repeat right 4px center; cursor: pointer; }
+  .gc-filter-select:focus { border-color: var(--teal); }
+  .gc-cal-btn { background: none; border: none; cursor: pointer; color: var(--text-muted); font-size: 14px; padding: 0 2px; }
+
+  /* ── Buttons ── */
+  .gc-btn { display: inline-flex; align-items: center; gap: 5px; border-radius: var(--r-sm); font-family: var(--font); font-size: 12px; font-weight: 600; cursor: pointer; padding: 0 12px; height: 28px; border: none; transition: opacity 0.15s; white-space: nowrap; }
+  .gc-btn:hover { opacity: 0.85; }
+  .gc-btn-primary { background: var(--teal); color: white; }
+  .gc-btn-secondary { background: white; color: var(--teal); border: 1px solid var(--teal); }
+  .gc-btn-tertiary { background: white; color: var(--text-secondary); border: 1px solid var(--border); }
+  .gc-btn-danger { background: #C62828; color: white; }
+  .gc-btn-text { background: none; border: none; color: var(--link); font-size: 12px; padding: 0 4px; height: auto; cursor: pointer; }
+  .gc-btn-sm { height: 22px; font-size: 11px; padding: 0 8px; }
+  .gc-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* ── Badges ── */
+  .gc-badge { display: inline-flex; align-items: center; height: 18px; padding: 0 7px; border-radius: 9px; font-size: 10px; font-weight: 700; }
+  .gc-badge-teal    { background: var(--teal-light); color: var(--teal-dark); }
+  .gc-badge-blue    { background: var(--blue-light); color: var(--blue-dark); }
+  .gc-badge-warn    { background: #FFF3E0; color: #E65100; }
+  .gc-badge-danger  { background: #FFEBEE; color: #C62828; }
+  .gc-badge-neutral { background: #F0F0F0; color: #666; }
+
+  /* ── Alerts ── */
+  .gc-alert { display: flex; gap: 8px; padding: 8px 12px; border-radius: var(--r-md); border-left: 3px solid; font-size: 12px; line-height: 1.5; margin-bottom: 6px; }
+  .gc-alert-success { background: var(--teal-light); border-color: var(--teal); color: var(--teal-dark); }
+  .gc-alert-warning { background: #FFF8E1; border-color: #FFA000; color: #7B5800; }
+  .gc-alert-error   { background: #FFEBEE; border-color: #C62828; color: #C62828; }
+  .gc-alert-info    { background: var(--blue-light); border-color: var(--blue); color: var(--blue-dark); }
+
+  /* ── Typography preview ── */
+  .type-row { background: var(--white); border: 1px solid var(--border); border-radius: var(--r-md); padding: 12px 16px; margin-bottom: 7px; display: flex; align-items: baseline; gap: 16px; }
+  .type-meta { font-size: 10px; color: var(--text-muted); min-width: 180px; font-family: monospace; line-height: 1.5; flex-shrink: 0; }
+
+  /* ── Spacing ── */
+  .spacing-row { display: flex; align-items: center; gap: 12px; margin-bottom: 6px; }
+  .spacing-box { background: var(--teal-light); border: 1px solid var(--teal); border-radius: 2px; flex-shrink: 0; }
+
+  .material-icons { font-size: inherit; vertical-align: middle; line-height: 1; }
+  .gc-shortcut-icon .material-icons { font-size: 18px; }
+  .gc-tool-icon .material-icons { font-size: 16px; }
+  .gc-nav-icon-btn .material-icons { font-size: 18px; }
+  .gc-left-icon .material-icons { font-size: 20px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- Sidebar -->
+  <nav class="sidebar">
+    <div class="sidebar-logo">
+      <h1>GuidingCare</h1>
+      <span>Web Design System · v1.0</span>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Foundations</div>
+      <div class="nav-item active" data-t="color">Color</div>
+      <div class="nav-item" data-t="typography">Typography</div>
+      <div class="nav-item" data-t="spacing">Spacing & Radius</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Shell</div>
+      <div class="nav-item" data-t="global-nav">Global Nav</div>
+      <div class="nav-item" data-t="member-banner">Member Banner</div>
+      <div class="nav-item" data-t="left-nav">Left Sidebar Nav</div>
+    </div>
+    <div class="nav-section">
+      <div class="nav-label">Components</div>
+      <div class="nav-item" data-t="tabs">Tabs</div>
+      <div class="nav-item" data-t="detail-card">Detail Section Card</div>
+      <div class="nav-item" data-t="filter-bar">Filter Bar</div>
+      <div class="nav-item" data-t="tables">Data Table</div>
+      <div class="nav-item" data-t="buttons">Buttons</div>
+      <div class="nav-item" data-t="badges">Badges & Alerts</div>
+    </div>
+  </nav>
+
+  <main class="content">
+    <div style="margin-bottom:44px;">
+      <h1 style="font-size:28px;font-weight:700;margin-bottom:6px;">GuidingCare Web Design System</h1>
+      <p style="color:var(--text-muted);font-size:13px;max-width:620px;line-height:1.7;">Tokens and components extracted from the live GuidingCare application and Figma file. All components reflect actual production UI observed in screenshots.</p>
+    </div>
+
+    <!-- COLOR -->
+    <div class="section" id="color">
+      <h2 class="section-title">Color</h2>
+      <p class="section-desc">Teal is the primary action/brand color. Blue is used for links, informational context, and the Digital channel badge. The UI is predominantly white and light gray — teal appears as accents, not large fills.</p>
+      <div class="subsection">
+        <div class="subsection-title">Brand</div>
+        <div class="token-grid">
+          <div class="token-card"><div class="token-swatch" style="background:#1378A3;"></div><div class="token-info"><div class="token-name">Brand Blue</div><div class="token-value">#1378A3</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#E3F2FA;"></div><div class="token-info"><div class="token-name">Blue Light</div><div class="token-value">#E3F2FA</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#0C5275;"></div><div class="token-info"><div class="token-name">Blue Dark</div><div class="token-value">#0C5275</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#1378A3;"></div><div class="token-info"><div class="token-name">Link / Info Blue</div><div class="token-value">#1378A3</div></div></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Surfaces & Borders</div>
+        <div class="token-grid">
+          <div class="token-card"><div class="token-swatch" style="background:#FFFFFF;border:1px solid #EEE;"></div><div class="token-info"><div class="token-name">White</div><div class="token-value">#FFFFFF · Cards, content</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#F8F8F8;"></div><div class="token-info"><div class="token-name">Surface Light</div><div class="token-value">#F8F8F8 · Table headers</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#FAFAFA;"></div><div class="token-info"><div class="token-name">Surface Header</div><div class="token-value">#FAFAFA · Nav bar row</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#EBEBEB;"></div><div class="token-info"><div class="token-name">Page Background</div><div class="token-value">#EBEBEB · Body bg</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#DDDDDD;"></div><div class="token-info"><div class="token-name">Border</div><div class="token-value">#DDDDDD · Default</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#EEEEEE;"></div><div class="token-info"><div class="token-name">Border Light</div><div class="token-value">#EEEEEE · Subtle dividers</div></div></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Text</div>
+        <div class="token-grid">
+          <div class="token-card"><div class="token-swatch" style="background:#333333;"></div><div class="token-info"><div class="token-name">Text Primary</div><div class="token-value">#333 · Headings, values</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#555555;"></div><div class="token-info"><div class="token-name">Text Secondary</div><div class="token-value">#555 · Labels, rows</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#888888;"></div><div class="token-info"><div class="token-name">Text Muted</div><div class="token-value">#888 · Placeholder, meta</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#1378A3;"></div><div class="token-info"><div class="token-name">Text Section</div><div class="token-value">#1378A3 · Section headings</div></div></div>
+        </div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Semantic</div>
+        <div class="token-grid">
+          <div class="token-card"><div class="token-swatch" style="background:#E3F2FA;border-bottom:3px solid #1378A3;"></div><div class="token-info"><div class="token-name">Success</div><div class="token-value">#E3F2FA / #1378A3</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#FFF8E1;border-bottom:3px solid #FFA000;"></div><div class="token-info"><div class="token-name">Warning</div><div class="token-value">#FFF8E1 / #FFA000</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#FFEBEE;border-bottom:3px solid #C62828;"></div><div class="token-info"><div class="token-name">Error</div><div class="token-value">#FFEBEE / #C62828</div></div></div>
+          <div class="token-card"><div class="token-swatch" style="background:#E3F2FA;border-bottom:3px solid #1378A3;"></div><div class="token-info"><div class="token-name">Info</div><div class="token-value">#E3F2FA / #1378A3</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- TYPOGRAPHY -->
+    <div class="section" id="typography">
+      <h2 class="section-title">Typography</h2>
+      <p class="section-desc">Open Sans throughout. The UI is dense — body text is 12px, not 14px. Bold (700) for section headings and table column heads; SemiBold (600) for tab labels and data values; Regular (400) for label text in key-value pairs. Section headings are teal.</p>
+      <div class="type-row"><div class="type-meta">13px · Bold 700<br>Member name in banner</div><div style="font-size:13px;font-weight:700;">AM2 Test-ALT9713 DOB 01/01/2001 25 yr(s)</div></div>
+      <div class="type-row"><div class="type-meta">12px · Bold 700 · teal<br>Detail section headings</div><div style="font-size:12px;font-weight:700;color:#1D9E75;">Personal Details · Phone Numbers · Clinical Details · Languages</div></div>
+      <div class="type-row"><div class="type-meta">12px · Bold 700 · #333<br>Table column headers</div><div style="font-size:12px;font-weight:700;color:#555;">First Name · Last Name · DOB · Gender · Caregiver Type · Start Date</div></div>
+      <div class="type-row"><div class="type-meta">12px · Regular 400 · label<br>Key-value field label</div><div style="font-size:12px;color:#555;">Member Name (F-M-L):&nbsp;<span style="font-weight:600;color:#333;">AM2 Test</span></div></div>
+      <div class="type-row"><div class="type-meta">12px · Italic 400 · muted<br>Empty / Not Available state</div><div style="font-size:12px;color:#888;font-style:italic;">Not Available</div></div>
+      <div class="type-row"><div class="type-meta">12px · SemiBold 600<br>Tab labels (active)</div><div style="font-size:12px;font-weight:600;color:#1D9E75;">Member Details · Caregivers · Care Team · Programs · Eligibility</div></div>
+      <div class="type-row"><div class="type-meta">12px · Regular 400 · blue<br>Link / action text</div><div style="font-size:12px;color:#178BD4;text-decoration:none;">✏ Edit &nbsp;·&nbsp; View Aid/Supplemental Data History &nbsp;·&nbsp; Go to Release of Information</div></div>
+      <div class="type-row"><div class="type-meta">10px · Regular 400<br>Shortcut labels in nav bar</div><div style="font-size:10px;color:#555;">InPatient · OutPatient · Pharmacy · HCBS · Complaint · Quick Links · Wellframe</div></div>
+    </div>
+
+    <!-- SPACING -->
+    <div class="section" id="spacing">
+      <h2 class="section-title">Spacing & Border Radius</h2>
+      <p class="section-desc">The GC UI is compact. Most component padding is 6–12px. Row heights are 36px (tables) and 44px (nav bar). Border radii are small — 3–4px for most elements.</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:28px;">
+        <div class="subsection">
+          <div class="subsection-title">Spacing scale</div>
+          <div class="spacing-row"><div class="spacing-box" style="width:3px;height:14px;"></div><span style="font-size:11px;font-family:monospace;min-width:32px;">3px</span><span style="font-size:11px;color:var(--text-muted);">Inline text gap</span></div>
+          <div class="spacing-row"><div class="spacing-box" style="width:5px;height:14px;"></div><span style="font-size:11px;font-family:monospace;min-width:32px;">5–6px</span><span style="font-size:11px;color:var(--text-muted);">Table cell padding (top/bottom)</span></div>
+          <div class="spacing-row"><div class="spacing-box" style="width:8px;height:14px;"></div><span style="font-size:11px;font-family:monospace;min-width:32px;">8px</span><span style="font-size:11px;color:var(--text-muted);">Horizontal cell padding, badge padding</span></div>
+          <div class="spacing-row"><div class="spacing-box" style="width:12px;height:14px;"></div><span style="font-size:11px;font-family:monospace;min-width:32px;">12px</span><span style="font-size:11px;color:var(--text-muted);">Card body, toolbar padding</span></div>
+          <div class="spacing-row"><div class="spacing-box" style="width:14px;height:14px;"></div><span style="font-size:11px;font-family:monospace;min-width:32px;">14px</span><span style="font-size:11px;color:var(--text-muted);">Detail card horizontal padding</span></div>
+          <div class="spacing-row"><div class="spacing-box" style="width:36px;height:14px;"></div><span style="font-size:11px;font-family:monospace;min-width:32px;">36px</span><span style="font-size:11px;color:var(--text-muted);">Table row height</span></div>
+          <div class="spacing-row"><div class="spacing-box" style="width:44px;height:14px;"></div><span style="font-size:11px;font-family:monospace;min-width:32px;">44px</span><span style="font-size:11px;color:var(--text-muted);">Bottom nav bar height</span></div>
+        </div>
+        <div class="subsection">
+          <div class="subsection-title">Border radius</div>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:24px;border:1px solid var(--teal);border-radius:0;background:var(--teal-light);"></div><div><div style="font-size:11px;font-weight:700;">0</div><div style="font-size:11px;color:var(--text-muted);">Table cells, search inputs (flat)</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:24px;border:1px solid var(--teal);border-radius:3px;background:var(--teal-light);"></div><div><div style="font-size:11px;font-weight:700;">3px</div><div style="font-size:11px;color:var(--text-muted);">Buttons, inputs, tags</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:24px;border:1px solid var(--teal);border-radius:4px;background:var(--teal-light);"></div><div><div style="font-size:11px;font-weight:700;">4px</div><div style="font-size:11px;color:var(--text-muted);">Cards, filter bar, modals</div></div></div>
+            <div style="display:flex;align-items:center;gap:12px;"><div style="width:44px;height:20px;border:1px solid var(--teal);border-radius:9px;background:var(--teal-light);"></div><div><div style="font-size:11px;font-weight:700;">pill</div><div style="font-size:11px;color:var(--text-muted);">Badges and status chips</div></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GLOBAL NAV -->
+    <div class="section" id="global-nav">
+      <h2 class="section-title">Global Nav</h2>
+      <p class="section-desc">Two-row structure. Top row: logo, "You are in Care Coordination" context, date-of-birth search, advanced search, notification icons, and user info. Bottom row: patient-context shortcuts (InPatient, OutPatient, etc.) on the left, and global tools (Quick Links, Wellframe, Calendar, BRE, Actions, Alerts, Admin, Config, Know, Manage, Settings, CareScribe) on the right.</p>
+      <div class="component-demo" style="padding:0;">
+        <div class="gc-nav-outer">
+          <!-- Row 1 -->
+          <div class="gc-nav-top">
+            <div class="gc-nav-logo">HEALTH<span>EDGE</span></div>
+            <div class="gc-nav-context">
+              You are in <strong>Care Coordination</strong><br>
+              <a href="#">Go to Population Health</a>
+            </div>
+            <div class="gc-search">
+              <select class="gc-search-select"><option>DATE OF BIRTH</option></select>
+              <input class="gc-search-input" type="text" placeholder="MM/DD/YYYY" />
+              <button class="gc-search-btn">🔍</button>
+              <button class="gc-advsearch">Advanced Search ▾</button>
+            </div>
+            <div class="gc-nav-user" style="margin-left:auto;">
+              <div>Welcome <a href="#">Lansing</a></div>
+              <div style="font-size:10px;color:var(--text-muted);">All Access Admin · Time zone: AKDT</div>
+            </div>
+                          <div class="gc-nav-icons">
+              <div class="gc-nav-icon-btn"><span class="material-icons">notifications</span><div class="gc-nav-badge">2</div></div>
+              <div class="gc-nav-icon-btn"><span class="material-icons">mail</span><div class="gc-nav-badge">1</div></div>
+              <div class="gc-nav-icon-btn"><span class="material-icons">account_circle</span></div>
+              <div class="gc-nav-icon-btn"><span class="material-icons">help_outline</span></div>
+            </div>
+          </div>
+          <!-- Row 2 -->
+          <div class="gc-nav-bottom">
+            <div class="gc-nav-bottom-left">
+              <div class="gc-shortcut"><div class="gc-shortcut-icon"><span class="material-icons">home</span></div>Home</div>
+              <div class="gc-shortcut" style="min-width:100px;font-size:10px;">AM2 Test,ALT97 ▾</div>
+            </div>
+            <div class="gc-shortcut"><div class="gc-shortcut-icon"><span class="material-icons">local_hospital</span></div>InPatient</div>
+            <div class="gc-shortcut"><div class="gc-shortcut-icon"><span class="material-icons">directions_walk</span></div>OutPatient</div>
+            <div class="gc-shortcut"><div class="gc-shortcut-icon"><span class="material-icons">medication</span></div>Pharmacy</div>
+            <div class="gc-shortcut"><div class="gc-shortcut-icon"><span class="material-icons">cottage</span></div>HCBS</div>
+            <div class="gc-shortcut"><div class="gc-shortcut-icon"><span class="material-icons">assignment_late</span></div>Complaint</div>
+            <div class="gc-toolbar">
+              <div class="gc-tool"><div class="gc-tool-icon"><span class="material-icons">link</span></div>Quick Links▾</div>
+              <div class="gc-tool"><div class="gc-tool-icon"><span class="material-icons">smartphone</span></div>Wellframe</div>
+              <div class="gc-tool"><div class="gc-tool-icon"><span class="material-icons">calendar_month</span></div>Calendar</div>
+              <div class="gc-tool"><div class="gc-tool-icon"><span class="material-icons">bolt</span></div>Actions▾</div>
+              <div class="gc-tool"><div class="gc-tool-icon"><span class="material-icons">notifications</span></div>Alerts</div>
+              <div class="gc-tool"><div class="gc-tool-icon"><span class="material-icons">admin_panel_settings</span></div>Admin▾</div>
+              <div class="gc-tool"><div class="gc-tool-icon"><span class="material-icons">build</span></div>Config▾</div>
+              <div class="gc-tool"><div class="gc-tool-icon"><span class="material-icons">settings</span></div>Settings▾</div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="component-label">gc-nav-top (36px) · gc-nav-bottom (44px) · logo: HEALTH bold + EDGE teal · search: date-of-birth field + magnifier + Advanced Search · tools: 10px labels + icon</div>
+    </div>
+
+    <!-- MEMBER BANNER -->
+    <div class="section" id="member-banner">
+      <h2 class="section-title">Member Banner</h2>
+      <p class="section-desc">Slim persistent bar below the nav that identifies the current member. Includes an alert indicator (badge), a teal checkmark for verified status, the member name, DOB, age, and an edit pencil link. 13px bold name text.</p>
+      <div class="component-demo">
+        <div class="gc-member-banner">
+          <div class="gc-banner-alert"><span class="material-icons" style="font-size:13px;">notifications</span> 9</div>
+          <span class="gc-banner-check"><span class="material-icons" style="font-size:16px;color:var(--teal);">check_circle</span></span>
+          <span class="gc-banner-name">AM2 Test-ALT9713</span>
+          <span style="color:var(--text-muted);font-size:12px;">DOB 01/01/2001 25 yr(s)</span>
+          <span class="gc-banner-edit"><span class="material-icons" style="font-size:14px;">edit</span></span>
+        </div>
+      </div>
+      <div class="component-label">gc-member-banner · 12px height · alert badge (amber) · ✔ teal checkmark · 13px Bold name · 12px muted DOB + age · pencil edit link</div>
+    </div>
+
+    <!-- LEFT SIDEBAR NAV -->
+    <div class="section" id="left-nav">
+      <h2 class="section-title">Left Sidebar Nav</h2>
+      <p class="section-desc">108px wide. Icon stacked above label. Active item has a teal left border (3px) and teal-light background. Items: Member Info, Health, Care Plan, Activity Record, Authorizations, Complaints, Packet Log.</p>
+      <div class="component-demo">
+        <div style="display:flex;border:1px solid var(--border);border-radius:var(--r-md);overflow:hidden;max-width:540px;">
+          <div class="gc-left-nav" style="border:none;border-radius:0;">
+            <div class="gc-left-item active"><div class="gc-left-icon"><span class="material-icons">person</span></div>Member Info</div>
+            <div class="gc-left-item"><div class="gc-left-icon"><span class="material-icons">favorite</span></div>Health</div>
+            <div class="gc-left-item"><div class="gc-left-icon"><span class="material-icons">assignment</span></div>Care Plan</div>
+            <div class="gc-left-item"><div class="gc-left-icon"><span class="material-icons">bar_chart</span></div>Activity Record</div>
+            <div class="gc-left-item"><div class="gc-left-icon"><span class="material-icons">verified</span></div>Authorizations</div>
+            <div class="gc-left-item"><div class="gc-left-icon"><span class="material-icons">warning</span></div>Complaints</div>
+            <div class="gc-left-item"><div class="gc-left-icon"><span class="material-icons">inventory_2</span></div>Packet Log</div>
+          </div>
+          <div style="flex:1;padding:16px;background:var(--surface-light);">
+            <p style="font-size:12px;color:var(--text-muted);">Content area</p>
+          </div>
+        </div>
+      </div>
+      <div class="component-label">gc-left-nav: 108px · gc-left-item: icon (18px) + label (10px) · active: border-left 3px teal + bg teal-light + font-weight 700</div>
+    </div>
+
+    <!-- TABS -->
+    <div class="section" id="tabs">
+      <h2 class="section-title">Tabs</h2>
+      <p class="section-desc">Underline tabs at the top of the member detail content area. 12px SemiBold. Active tab: teal color + 2px teal bottom border. Inactive: #888 muted. No background fill on the tab itself.</p>
+      <div class="component-demo">
+        <div class="gc-tabs">
+          <div class="gc-tab active">Member Details</div>
+          <div class="gc-tab">Caregivers</div>
+          <div class="gc-tab">Care Team</div>
+          <div class="gc-tab">Programs</div>
+          <div class="gc-tab">Eligibility</div>
+          <div class="gc-tab">UDT</div>
+        </div>
+        <div style="padding:12px 0 0;font-size:12px;color:var(--text-muted);">Tab content</div>
+      </div>
+      <div class="component-label">gc-tabs · gc-tab: 12px SemiBold · active: color #1D9E75 + border-bottom 2px #1D9E75 · inactive: color #888</div>
+    </div>
+
+    <!-- DETAIL SECTION CARD -->
+    <div class="section" id="detail-card">
+      <h2 class="section-title">Detail Section Card</h2>
+      <p class="section-desc">Used across Member Details, Languages, Address, Medical IDs, Demographics. White card with 1px border, minimal padding. Section heading in teal 12px Bold. Key-value rows at 12px — label in #555, value in #333 SemiBold. "Not Available" renders in #888 italic. Edit link floats right.</p>
+      <div class="component-demo">
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px;">
+          <div>
+            <div class="gc-detail-card">
+              <div class="gc-detail-header">
+                <div class="gc-detail-heading">Personal Details</div>
+              </div>
+              <div class="gc-detail-body">
+                <div class="gc-kv-row"><span class="gc-kv-label">Member Name (F-M-L):</span>&nbsp;<span class="gc-kv-value">AM2 Test</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Preferred Name:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Gender:</span>&nbsp;<span class="gc-kv-value">Male</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Date of Birth:</span>&nbsp;<span class="gc-kv-value">January 01, 2001</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">New ID:</span>&nbsp;<span class="gc-kv-value">ALT9713</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Service Interruption:</span>&nbsp;<a class="gc-kv-link" href="#">Not Available</a></div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="gc-detail-card">
+              <div class="gc-detail-header">
+                <div class="gc-detail-heading">Phone Numbers</div>
+                <span class="gc-edit-inline"><span class="material-icons" style="font-size:12px;">edit</span> Edit</span>
+              </div>
+              <div class="gc-detail-body">
+                <div class="gc-kv-row"><span class="gc-kv-label">Preferred Phone:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Primary Phone:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Cell Phone:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Alternate Phone:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Preferred Time to Call:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+              </div>
+            </div>
+            <div class="gc-detail-card" style="margin-top:12px;">
+              <div class="gc-detail-header"><div class="gc-detail-heading">Address</div></div>
+              <div class="gc-detail-body">
+                <div class="gc-kv-row"><span class="gc-kv-label">Address:</span>&nbsp;<span class="gc-kv-value">123 Main Street</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">City:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">State / Province:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+                <div class="gc-kv-row"><span class="gc-kv-label">Zip / Postal Code:</span>&nbsp;<span class="gc-kv-na">Not Available</span></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="component-label">gc-detail-card · heading: 12px Bold teal · kv-label: 12px #555 · kv-value: 12px SemiBold #333 · kv-na: 12px italic #888 · edit link: float right</div>
+    </div>
+
+    <!-- FILTER BAR -->
+    <div class="section" id="filter-bar">
+      <h2 class="section-title">Filter Bar</h2>
+      <p class="section-desc">Appears above data tables. Labeled inputs + date pickers + status dropdown + Search and Clear buttons. All inputs 28px tall with 1px #DDD border, 3px radius.</p>
+      <div class="component-demo" style="padding:0;">
+        <div class="gc-filter-bar">
+          <div class="gc-filter-field">
+            <label class="gc-filter-label">Name</label>
+            <input class="gc-filter-input" type="text" placeholder="" />
+          </div>
+          <div class="gc-filter-field">
+            <label class="gc-filter-label">Start Date</label>
+            <div style="display:flex;align-items:center;gap:2px;">
+              <input class="gc-filter-input gc-filter-input-date" type="text" placeholder="MM/DD/YYYY" />
+              <button class="gc-cal-btn">📅</button>
+            </div>
+          </div>
+          <div class="gc-filter-field">
+            <label class="gc-filter-label">End Date</label>
+            <div style="display:flex;align-items:center;gap:2px;">
+              <input class="gc-filter-input gc-filter-input-date" type="text" placeholder="MM/DD/YYYY" />
+              <button class="gc-cal-btn">📅</button>
+            </div>
+          </div>
+          <div class="gc-filter-field">
+            <label class="gc-filter-label">Status</label>
+            <select class="gc-filter-select"><option>Active</option><option>Inactive</option><option>All</option></select>
+          </div>
+          <div style="display:flex;gap:6px;align-self:flex-end;">
+            <button class="gc-btn gc-btn-primary"><span class="material-icons" style="font-size:14px;">search</span> Search</button>
+            <button class="gc-btn gc-btn-tertiary"><span class="material-icons" style="font-size:14px;">close</span> Clear</button>
+          </div>
+        </div>
+      </div>
+      <div class="component-label">gc-filter-bar · labels: 11px Bold uppercase · inputs: 28px height, 3px radius, 1px #DDD border · Search: btn-primary · Clear: btn-tertiary</div>
+    </div>
+
+    <!-- DATA TABLE -->
+    <div class="section" id="tables">
+      <h2 class="section-title">Data Table</h2>
+      <p class="section-desc">Used in Caregivers, My Members, Activity Record, Authorizations, etc. 36px row height. 12px bold headers on #F8F8F8. 12px regular rows on white. Checkbox column on the left. Action toolbar above. Pagination footer below. Hover: #F0FAF6 (teal-tinted).</p>
+      <div class="gc-table-wrap">
+        <div class="gc-table-toolbar">
+          <div class="gc-table-action"><span class="material-icons" style="font-size:14px;">add</span> Add</div>
+          <div class="gc-table-action"><span class="material-icons" style="font-size:14px;">edit</span> Edit</div>
+          <div class="gc-table-action"><span class="material-icons" style="font-size:14px;">delete</span> Delete</div>
+          <div class="gc-table-action"><span class="material-icons" style="font-size:14px;">visibility</span> View</div>
+          <div style="margin-left:auto;"><a href="#" style="font-size:11px;color:var(--link);">Go to Release of Information →</a></div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="gc-table">
+            <thead>
+              <tr>
+                <th style="width:32px;"><input type="checkbox" /></th>
+                <th>First Name</th>
+                <th>Last Name</th>
+                <th>Home Phone</th>
+                <th>DOB</th>
+                <th>Gender</th>
+                <th>Relation</th>
+                <th>Caregiver Type</th>
+                <th>Is Primary</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td colspan="11" style="text-align:center;color:var(--text-muted);font-style:italic;padding:16px;">No items to display</td></tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="gc-table-footer">
+          <div class="gc-pager-btn">«</div>
+          <div class="gc-pager-btn">‹</div>
+          <div class="gc-pager-btn active">0</div>
+          <div class="gc-pager-btn">›</div>
+          <div class="gc-pager-btn">»</div>
+          <select style="font-size:11px;border:1px solid var(--border);border-radius:var(--r-sm);padding:1px 4px;margin-left:4px;"><option>20</option><option>50</option><option>100</option></select>
+          <span>items per page</span>
+          <span style="margin-left:auto;font-size:11px;">No items to display</span>
+        </div>
+      </div>
+      <div class="component-label" style="border-radius:0 0 var(--r-md) var(--r-md);">gc-table · header: 12px Bold #F8F8F8 · rows: 12px #555 white · 36px row height · hover: #F0FAF6 · toolbar: link-style actions · footer: pager + items-per-page</div>
+    </div>
+
+    <!-- MODAL -->
+    <div class="section" id="modal">
+      <h2 class="section-title">Modal</h2>
+      <p class="section-desc">White dialog on a light blue-gray backdrop (#EBF4F8). Orange-red accent line under the title. Required fields marked with a red asterisk. Footer has a filled primary button and an outlined secondary button, both using the brand blue. Max-width ~600px; scrollable body for long forms.</p>
+
+      <div class="component-demo" style="padding:0;background:#D0E8F2;border-radius:var(--r-md);">
+        <div style="padding:24px;display:flex;align-items:flex-start;justify-content:center;">
+          <!-- Modal shell -->
+          <div style="background:#fff;border-radius:4px;width:100%;max-width:580px;box-shadow:0 4px 20px rgba(0,0,0,0.18);overflow:hidden;">
+
+            <!-- Title bar -->
+            <div style="padding:14px 18px 0;border-bottom:3px solid #D94F2C;display:flex;align-items:center;justify-content:space-between;background:#fff;">
+              <span style="font-size:16px;font-weight:700;color:#222;">Add Activity</span>
+              <button style="background:none;border:none;cursor:pointer;color:#555;font-size:18px;line-height:1;padding:0 2px;"><span class="material-icons" style="font-size:18px;">close</span></button>
+            </div>
+
+            <!-- Body -->
+            <div style="padding:14px 18px;background:#EBF4F8;display:flex;flex-direction:column;gap:14px;">
+
+              <!-- Required note -->
+              <div style="font-size:11px;color:#555;"><span style="color:#C62828;font-weight:700;">*</span> Indicates required field</div>
+
+              <!-- Radio fieldset -->
+              <fieldset style="border:1px solid #CCC;border-radius:3px;padding:8px 14px;background:#fff;">
+                <legend style="font-size:11px;color:#555;padding:0 4px;">Add Activity For</legend>
+                <div style="display:flex;gap:32px;align-items:center;">
+                  <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;">
+                    <input type="radio" name="aaf" checked style="accent-color:#1378A3;width:16px;height:16px;" /> Care Staff
+                  </label>
+                  <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;">
+                    <input type="radio" name="aaf" style="accent-color:#1378A3;width:16px;height:16px;" /> External Care Team
+                  </label>
+                  <label style="display:flex;align-items:center;gap:7px;font-size:13px;cursor:pointer;">
+                    <input type="radio" name="aaf" style="accent-color:#1378A3;width:16px;height:16px;" /> Pharmacist
+                  </label>
+                </div>
+              </fieldset>
+
+              <!-- Row: Type -->
+              <div style="display:flex;flex-direction:column;gap:4px;max-width:220px;">
+                <label style="font-size:12px;font-weight:700;color:#333;"><span style="color:#C62828;">*</span>Type</label>
+                <select style="height:32px;border:1px solid #BBB;border-radius:3px;padding:0 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;width:100%;">
+                  <option>Scheduled</option><option>Unscheduled</option>
+                </select>
+              </div>
+
+              <!-- Checkbox: Work Queue -->
+              <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer;">
+                <input type="checkbox" style="accent-color:#1378A3;width:15px;height:15px;" /> Work Queue Activity
+              </label>
+
+              <!-- Row: Member Name + Care Staff -->
+              <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;font-weight:700;color:#333;">Member Name</label>
+                  <div style="font-size:13px;color:#555;padding:2px 0;">AM2 Test</div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;font-weight:700;color:#333;"><span style="color:#C62828;">*</span>Care Staff</label>
+                  <input type="text" value="Lansing Cai : All Access Admin" style="height:32px;border:1px solid #BBB;border-radius:3px;padding:0 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;width:100%;" />
+                </div>
+              </div>
+
+              <!-- Row: Activity Type + Script + Priority -->
+              <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;">
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;font-weight:700;color:#333;"><span style="color:#C62828;">*</span>Activity Type</label>
+                  <select style="height:32px;border:1px solid #BBB;border-radius:3px;padding:0 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;width:100%;"><option>Select</option></select>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;font-weight:700;color:#333;">Script</label>
+                  <select style="height:32px;border:1px solid #BBB;border-radius:3px;padding:0 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;width:100%;"><option>Select</option></select>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;font-weight:700;color:#333;">Priority</label>
+                  <select style="height:32px;border:1px solid #BBB;border-radius:3px;padding:0 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;width:100%;"><option>Select</option></select>
+                </div>
+              </div>
+
+              <!-- Row: Contact Type -->
+              <div style="display:flex;flex-direction:column;gap:4px;max-width:220px;">
+                <label style="font-size:12px;font-weight:700;color:#333;"><span style="color:#C62828;">*</span>Contact Type</label>
+                <select style="height:32px;border:1px solid #BBB;border-radius:3px;padding:0 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;width:100%;">
+                  <option>Member - Phone</option><option>Member - Chat</option>
+                </select>
+              </div>
+
+              <!-- Row: Duration + Scheduled Date -->
+              <div style="display:grid;grid-template-columns:auto 1fr;gap:24px;align-items:end;">
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;font-weight:700;color:#333;"><span style="color:#C62828;">*</span>Scheduled Duration</label>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <input type="text" value="00" style="width:44px;height:32px;border:1px solid #BBB;border-radius:3px;padding:0;text-align:center;font-size:13px;font-family:inherit;background:#fff;outline:none;" />
+                    <span style="font-size:12px;color:#555;">Hrs</span>
+                    <input type="text" value="30" style="width:44px;height:32px;border:1px solid #BBB;border-radius:3px;padding:0;text-align:center;font-size:13px;font-family:inherit;background:#fff;outline:none;" />
+                    <span style="font-size:12px;color:#555;">Mins</span>
+                  </div>
+                </div>
+                <div style="display:flex;flex-direction:column;gap:4px;">
+                  <label style="font-size:12px;font-weight:700;color:#333;"><span style="color:#C62828;">*</span>Scheduled Date <span style="font-size:11px;color:#888;font-weight:400;">MM/DD/YYYY HH:MM</span></label>
+                  <div style="display:flex;align-items:center;gap:6px;">
+                    <div style="position:relative;display:inline-flex;align-items:center;">
+                      <input type="text" value="03/25/2026 05:33" style="height:32px;border:1px solid #BBB;border-radius:3px;padding:0 60px 0 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;width:180px;" />
+                      <span style="position:absolute;right:8px;display:flex;gap:4px;color:#1378A3;">
+                        <span class="material-icons" style="font-size:16px;">calendar_month</span>
+                        <span class="material-icons" style="font-size:16px;">schedule</span>
+                      </span>
+                    </div>
+                    <span style="display:flex;gap:2px;color:#1378A3;border:1px solid #BBB;border-radius:3px;padding:4px 6px;background:#fff;cursor:pointer;">
+                      <span class="material-icons" style="font-size:16px;">calendar_month</span>
+                      <span class="material-icons" style="font-size:16px;">schedule</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Row: Due Date -->
+              <div style="display:flex;flex-direction:column;gap:4px;max-width:240px;">
+                <label style="font-size:12px;font-weight:700;color:#333;">Due Date <span style="font-size:11px;color:#888;font-weight:400;">MM/DD/YYYY HH:MM</span></label>
+                <div style="position:relative;display:inline-flex;align-items:center;">
+                  <input type="text" placeholder="" style="height:32px;border:1px solid #BBB;border-radius:3px;padding:0 56px 0 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;width:100%;" />
+                  <span style="position:absolute;right:8px;display:flex;gap:4px;color:#1378A3;">
+                    <span class="material-icons" style="font-size:16px;">calendar_month</span>
+                    <span class="material-icons" style="font-size:16px;">schedule</span>
+                  </span>
+                </div>
+              </div>
+
+              <!-- Checkboxes: Recurring + Program -->
+              <div style="display:flex;gap:32px;">
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer;">
+                  <input type="checkbox" style="accent-color:#1378A3;width:15px;height:15px;" /> Recurring Activity
+                </label>
+                <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;cursor:pointer;">
+                  <input type="checkbox" style="accent-color:#1378A3;width:15px;height:15px;" /> Program Activity
+                </label>
+              </div>
+
+              <!-- Comments -->
+              <div style="display:flex;flex-direction:column;gap:4px;">
+                <label style="font-size:12px;font-weight:700;color:#333;">Enter Comments / Reasons</label>
+                <textarea style="border:1px solid #BBB;border-radius:3px;padding:6px 8px;font-size:13px;font-family:inherit;background:#fff;outline:none;min-height:60px;resize:vertical;width:100%;"></textarea>
+              </div>
+
+            </div>
+
+            <!-- Footer -->
+            <div style="padding:14px 18px;background:#fff;border-top:1px solid #DDD;display:flex;justify-content:center;gap:16px;">
+              <button style="background:#1378A3;color:#fff;border:none;border-radius:3px;padding:0 32px;height:36px;font-size:14px;font-weight:700;font-family:inherit;cursor:pointer;">Add</button>
+              <button style="background:#fff;color:#1378A3;border:1px solid #1378A3;border-radius:3px;padding:0 24px;height:36px;font-size:14px;font-weight:600;font-family:inherit;cursor:pointer;">Add and Close</button>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="component-label">modal · white on #EBF4F8 backdrop · title + 3px #D94F2C accent line · red asterisk required fields · fieldset radio group · inline duration inputs · date+time inputs with calendar_month + schedule icons · footer: filled primary + outlined secondary</div>
+
+      <!-- Simple modal variant -->
+      <div style="margin-top:24px;" class="subsection">
+        <div class="subsection-title">Simple modal — single select</div>
+        <p style="font-size:12px;color:var(--text-muted);margin-bottom:16px;line-height:1.6;">Used for lightweight single-action dialogs (e.g. Run Script). No body background tint — all white. Title is larger (~22px). Same orange-red accent line. Blue ✕ close. The custom dropdown renders as a floating list on a light gray (#EBEBEB) surface; the selected item is highlighted in blue with a leading checkmark.</p>
+      </div>
+
+      <div class="component-demo" style="padding:0;background:#C8D8E0;border-radius:var(--r-md);">
+        <div style="padding:24px;display:flex;align-items:flex-start;justify-content:center;">
+          <div style="background:#fff;border-radius:6px;width:100%;max-width:520px;box-shadow:0 4px 24px rgba(0,0,0,0.18);overflow:visible;position:relative;">
+
+            <!-- Title bar -->
+            <div style="padding:18px 20px 4px;background:#fff;border-radius:6px 6px 0 0;">
+              <div style="display:flex;align-items:flex-start;justify-content:space-between;">
+                <div>
+                  <div style="font-size:22px;font-weight:700;color:#222;line-height:1.2;">Run Script</div>
+                  <div style="height:3px;width:160px;background:#D94F2C;margin-top:8px;border-radius:2px;"></div>
+                </div>
+                <button style="background:none;border:none;cursor:pointer;color:#1378A3;line-height:1;padding:0;margin-top:2px;">
+                  <span class="material-icons" style="font-size:22px;">close</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Body -->
+            <div style="padding:24px 20px 20px;background:#fff;position:relative;">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <label style="font-size:13px;font-weight:700;color:#333;white-space:nowrap;">Select a Script</label>
+                <!-- Select trigger with amber right border -->
+                <div style="position:relative;flex:1;">
+                  <div style="height:32px;border:1px solid #BBB;border-right:3px solid #E6A817;border-radius:3px;background:#fff;display:flex;align-items:center;justify-content:space-between;padding:0 8px;font-size:13px;color:#555;cursor:pointer;">
+                    <span>---Select---</span>
+                    <span class="material-icons" style="font-size:16px;color:#888;">arrow_drop_down</span>
+                  </div>
+
+                  <!-- Open dropdown list -->
+                  <div style="position:absolute;top:34px;left:0;right:0;background:#EBEBEB;border:1px solid #BBB;border-radius:0 0 3px 3px;z-index:10;box-shadow:0 4px 12px rgba(0,0,0,0.12);max-height:260px;overflow-y:auto;">
+                    <div style="background:#4A9FE0;color:#fff;padding:8px 12px;font-size:13px;display:flex;align-items:center;gap:8px;">
+                      <span class="material-icons" style="font-size:14px;">check</span> ---Select---
+                    </div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">Asthma Control 0826AM</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">Beth's Script</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">CANS Test</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">Capture Signature for Letters</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">CHF Rehabilitation</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">Deb's Healthify Assessment</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">demo script red font</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">Diabetes Initial Assessment</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">Diabetic_Ram_script_assesment</div>
+                    <div style="padding:7px 12px;font-size:13px;color:#333;cursor:pointer;" onmouseover="this.style.background='#D8D8D8'" onmouseout="this.style.background='transparent'">Diabetic_Script_10/27</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </div>
+      <div class="component-label">simple modal · 22px Bold title · 3px #D94F2C underline · blue close icon · white body (no tint) · select trigger: 1px #BBB border + 3px amber right accent · dropdown: #EBEBEB bg · selected: #4A9FE0 filled row + check icon · hover: #D8D8D8 · 13px items · no row dividers</div>
+    </div>
+
+    <!-- BUTTONS -->
+    <div class="section" id="buttons">
+      <h2 class="section-title">Buttons</h2>
+      <p class="section-desc">3px border-radius. Open Sans SemiBold 12px. Compact — default height 28px. Primary teal for save/submit; tertiary for cancel/clear; text-link style for inline actions.</p>
+      <div class="component-demo">
+        <div class="demo-row">
+          <button class="gc-btn gc-btn-primary"><span class="material-icons" style="font-size:14px;">search</span> Search</button>
+          <button class="gc-btn gc-btn-secondary">Save</button>
+          <button class="gc-btn gc-btn-tertiary"><span class="material-icons" style="font-size:14px;">close</span> Clear</button>
+          <button class="gc-btn gc-btn-danger">Delete</button>
+          <button class="gc-btn-text"><span class="material-icons" style="font-size:14px;">edit</span> Edit</button>
+          <button class="gc-btn-text"><span class="material-icons" style="font-size:14px;">visibility</span> View</button>
+        </div>
+      </div>
+      <div class="component-label">gc-btn-primary · gc-btn-secondary · gc-btn-tertiary · gc-btn-danger · gc-btn-text</div>
+      <div class="component-demo" style="margin-top:0;">
+        <div class="demo-row">
+          <button class="gc-btn gc-btn-primary gc-btn-sm">Add</button>
+          <button class="gc-btn gc-btn-tertiary gc-btn-sm">Cancel</button>
+          <button class="gc-btn gc-btn-primary">Default (28px)</button>
+          <button class="gc-btn gc-btn-primary" style="height:32px;font-size:13px;padding:0 16px;">Save & Continue</button>
+        </div>
+      </div>
+      <div class="component-label">gc-btn-sm (22px) · default (28px) · large (32px) — used for primary modal actions</div>
+      <div class="component-demo" style="margin-top:0;">
+        <div class="demo-row">
+          <button class="gc-btn gc-btn-primary" disabled>Saving...</button>
+          <button class="gc-btn gc-btn-secondary" disabled>Unavailable</button>
+        </div>
+      </div>
+      <div class="component-label">Disabled state — opacity: 0.4, cursor: not-allowed</div>
+    </div>
+
+    <!-- BADGES & ALERTS -->
+    <div class="section" id="badges">
+      <h2 class="section-title">Badges & Alerts</h2>
+      <div class="subsection">
+        <div class="subsection-title">Status badges</div>
+        <div class="component-demo">
+          <div class="demo-row">
+            <span class="gc-badge gc-badge-teal">Active</span>
+            <span class="gc-badge gc-badge-teal">Wellframe</span>
+            <span class="gc-badge gc-badge-teal">Complete</span>
+            <span class="gc-badge gc-badge-blue">Digital</span>
+            <span class="gc-badge gc-badge-blue">Assigned</span>
+            <span class="gc-badge gc-badge-warn">Pending</span>
+            <span class="gc-badge gc-badge-warn">Medium Risk</span>
+            <span class="gc-badge gc-badge-danger">High Risk</span>
+            <span class="gc-badge gc-badge-danger">Error</span>
+            <span class="gc-badge gc-badge-neutral">SMS Text</span>
+            <span class="gc-badge gc-badge-neutral">N/A</span>
+            <span class="gc-badge gc-badge-neutral">CM</span>
+          </div>
+        </div>
+        <div class="component-label">gc-badge · 18px height · 10px Bold · pill (9px radius) · teal/blue/warn/danger/neutral variants</div>
+      </div>
+      <div class="subsection">
+        <div class="subsection-title">Alert banners</div>
+        <div class="component-demo">
+          <div class="gc-alert gc-alert-success"><span class="material-icons" style="font-size:14px;flex-shrink:0;">check_circle</span><div><strong>Assessment complete</strong> — Member completed the Health Risk Assessment on 07/31/2025.</div></div>
+          <div class="gc-alert gc-alert-info"><span class="material-icons" style="font-size:14px;flex-shrink:0;">info</span><div><strong>Member started assessment</strong> — Initiated via Wellframe at 11:05 AM.</div></div>
+          <div class="gc-alert gc-alert-warning"><span class="material-icons" style="font-size:14px;flex-shrink:0;">warning</span><div><strong>Assessment due in 10 days</strong> — Member has not completed the assigned survey.</div></div>
+          <div class="gc-alert gc-alert-error"><span class="material-icons" style="font-size:14px;flex-shrink:0;">error</span><div><strong>Outreach unsuccessful</strong> — No response after 3 contact attempts.</div></div>
+        </div>
+        <div class="component-label">gc-alert · 3px left border · 8px padding · 12px font · success/info/warning/error variants</div>
+      </div>
+    </div>
+
+    <hr class="divider">
+    <div style="color:var(--text-muted);font-size:11px;padding-bottom:40px;">GuidingCare Web · Extracted from screenshots + Figma node 618:5889 · HealthEdge</div>
+  </main>
+</div>
+
+<script>
+  document.querySelectorAll('.nav-item').forEach(el => {
+    el.addEventListener('click', function() {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+      document.getElementById(this.dataset.t)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
+  });
+</script>
+</body>
+</html>

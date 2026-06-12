@@ -1,0 +1,545 @@
+/* RecommendedActionsCard */
+
+/* ── Root card wrapper ── */
+.root {
+  margin: 12px 0 6px;
+  background: #fff;
+  border: 1px solid rgba(0, 93, 159, 0.18);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 1px 4px rgba(0, 93, 159, 0.08), 0 4px 16px rgba(0, 93, 159, 0.05);
+}
+
+/* ── Header ── */
+.header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 10px 12px 9px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.07);
+  background: linear-gradient(to right, #f5f9fd, #fff);
+}
+
+.headerLeft {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.title {
+  font-family: var(--font-family-base);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--color-text-primary);
+  letter-spacing: 0.01em;
+}
+
+.headerRight {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.addAllRow {
+  display: flex;
+  justify-content: flex-end;
+  padding: 10px;
+}
+
+/* ── Header action buttons ── */
+.addAllBtn {
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: rgba(0, 93, 159, 0.07);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 3px 10px;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background var(--transition-fast);
+}
+
+.addAllBtn:hover {
+  background: rgba(0, 93, 159, 0.14);
+}
+
+.addAllBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.allDone {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-primary);
+}
+
+.dismissBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+  border-radius: 6px;
+  color: var(--color-text-secondary);
+  opacity: 0.55;
+  transition: opacity var(--transition-fast), background var(--transition-fast);
+}
+
+.dismissBtn:hover {
+  opacity: 1;
+  background: rgba(0, 0, 0, 0.07);
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 3px;
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background var(--transition-fast);
+}
+
+.backBtn:hover {
+  background: rgba(0, 0, 0, 0.07);
+}
+
+/* ── Mode toggle ── */
+.modeToggle {
+  display: flex;
+  margin: 8px 12px 2px;
+  background: rgba(0, 0, 0, 0.045);
+  border-radius: var(--radius-full);
+  padding: 3px;
+}
+
+.modeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  flex: 1;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: none;
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 4px 10px;
+  cursor: pointer;
+  transition: background var(--transition-fast), color var(--transition-fast), box-shadow var(--transition-fast);
+  white-space: nowrap;
+}
+
+.modeBtn:hover {
+  color: var(--color-text-primary);
+}
+
+.modeBtnActive {
+  background: #fff;
+  color: var(--color-primary);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.13);
+}
+
+.modeBtnActive:hover {
+  color: var(--color-primary);
+}
+
+/* ── Action list ── */
+.cards {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 12px 12px 8px;
+}
+
+.actionCard {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.actionCard:hover {
+  border-color: rgba(0, 93, 159, 0.35);
+  box-shadow: 0 1px 4px rgba(0, 93, 159, 0.12);
+}
+
+.actionCard:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.actionCardAdded {
+  background: #fff;
+  border-color: rgba(0, 93, 159, 0.35);
+  box-shadow: 0 1px 4px rgba(0, 93, 159, 0.1);
+}
+
+.actionCardAdded:hover {
+  border-color: rgba(0, 93, 159, 0.5);
+  box-shadow: 0 1px 5px rgba(0, 93, 159, 0.15);
+}
+
+.actionInput {
+  flex: 1;
+  font-family: var(--font-family-base);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+  background: none;
+  border: none;
+  outline: none;
+  padding: 0;
+  min-width: 0;
+  cursor: text;
+}
+
+.actionInput::placeholder {
+  color: var(--color-text-secondary);
+  opacity: 0.6;
+}
+
+.addTaskBtn {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 8px 12px;
+  background: none;
+  border: 1px dashed rgba(0, 93, 159, 0.35);
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--color-primary);
+  width: 100%;
+  text-align: left;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.addTaskBtn:hover {
+  background: rgba(0, 93, 159, 0.04);
+  border-color: rgba(0, 93, 159, 0.55);
+}
+
+.addTaskBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* AI selected */
+.actionCardSelected {
+  background: #fff;
+  border-color: rgba(0, 93, 159, 0.4);
+  box-shadow: 0 1px 4px rgba(0, 93, 159, 0.12);
+}
+
+.actionCardSelected:hover {
+  border-color: rgba(0, 93, 159, 0.55);
+  box-shadow: 0 1px 5px rgba(0, 93, 159, 0.16);
+}
+
+/* AI done */
+.actionCardAiDone {
+  background: #fff;
+  border-color: rgba(46, 125, 50, 0.3);
+  box-shadow: 0 1px 3px rgba(46, 125, 50, 0.08);
+  cursor: default;
+}
+
+.actionCardAiDone:hover {
+  border-color: rgba(46, 125, 50, 0.3);
+  box-shadow: 0 1px 3px rgba(46, 125, 50, 0.08);
+}
+
+.addIcon {
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.actionText {
+  flex: 1;
+  font-family: var(--font-family-base);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--color-text-primary);
+  line-height: 1.4;
+}
+
+.actionTextDone {
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+}
+
+/* ── Tags ── */
+.addedTag {
+  flex-shrink: 0;
+  font-family: var(--font-family-base);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-primary);
+  background: rgba(0, 93, 159, 0.09);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+.doneTag {
+  flex-shrink: 0;
+  font-family: var(--font-family-base);
+  font-size: 10px;
+  font-weight: 600;
+  color: var(--color-success);
+  background: rgba(46, 125, 50, 0.09);
+  border: none;
+  border-radius: var(--radius-full);
+  padding: 2px 8px;
+  white-space: nowrap;
+  letter-spacing: 0.02em;
+}
+
+/* ── View task list / finish button ── */
+.finishBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: calc(100% - 20px);
+  margin: 2px 10px 10px;
+  padding: 9px;
+  background: var(--color-primary);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: background var(--transition-fast);
+}
+
+.finishBtn:hover {
+  background: var(--color-primary-hover);
+}
+
+.finishBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Task list ── */
+.taskCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 10px 12px;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+  transition: border-color var(--transition-fast);
+}
+
+.taskCardDone {
+  background: #fff;
+  border-color: rgba(46, 125, 50, 0.3);
+  box-shadow: 0 1px 3px rgba(46, 125, 50, 0.08);
+}
+
+.taskCardLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 9px;
+  flex: 1;
+  min-width: 0;
+}
+
+.taskCardContent {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  flex: 1;
+  min-width: 0;
+}
+
+.taskLinkBtn {
+  font-family: var(--font-family-base);
+  font-size: 12.5px;
+  font-weight: 400;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  line-height: 1.4;
+}
+
+.taskLinkBtn:hover {
+  color: var(--color-primary-hover);
+}
+
+.taskLinkBtnDone {
+  color: var(--color-primary);
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+.taskLinkBtnDone:hover {
+  color: var(--color-primary-hover);
+}
+
+.viewInLink {
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  padding: 0;
+  cursor: pointer;
+  text-align: left;
+  transition: color var(--transition-fast);
+}
+
+.viewInLink:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.viewInLinkBelow {
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-primary);
+  background: none;
+  border: none;
+  padding: 1px 2px 4px 36px;
+  cursor: pointer;
+  text-align: left;
+  transition: color var(--transition-fast);
+  align-self: flex-start;
+}
+
+.viewInLinkBelow:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+/* ── Automate button ── */
+.automateBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  width: calc(100% - 20px);
+  margin: 2px 10px 10px;
+  padding: 9px;
+  background: linear-gradient(135deg, #1a3a5f 0%, #005d9f 100%);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: 12.5px;
+  font-weight: 600;
+  transition: opacity var(--transition-fast);
+}
+
+.automateBtn:hover {
+  opacity: 0.88;
+}
+
+.automateBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Automating bar ── */
+.automatingBar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  margin: 2px 10px 10px;
+  padding: 9px;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 500;
+  color: var(--color-text-secondary);
+  background: rgba(0, 0, 0, 0.04);
+  border-radius: 8px;
+}
+
+/* ── Automation success ── */
+.automationSuccess {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 6px 10px 0;
+  padding: 7px 11px;
+  background: rgba(46, 125, 50, 0.08);
+  border-radius: 8px;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-success);
+}
+
+/* ── Spinners ── */
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.spinner {
+  display: inline-block;
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(0, 93, 159, 0.15);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+.spinnerSm {
+  display: inline-block;
+  width: 13px;
+  height: 13px;
+  border: 1.5px solid rgba(0, 93, 159, 0.15);
+  border-top-color: var(--color-primary);
+  border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+  flex-shrink: 0;
+}

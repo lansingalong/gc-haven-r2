@@ -1,0 +1,229 @@
+/* Haven — UracChecklistCard */
+
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-family: var(--font-family-base);
+}
+
+/* ── Top progress bar ── */
+.topBar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 4px;
+}
+
+.progressWrap {
+  flex: 1;
+  height: 5px;
+  background: var(--color-bg-secondary);
+  border-radius: var(--radius-full);
+  overflow: hidden;
+}
+
+.progressFill {
+  height: 100%;
+  border-radius: var(--radius-full);
+  background: #1D9E75;
+  transition: width var(--transition-standard);
+}
+
+.progressLabel {
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+/* ── Section ── */
+.section {
+  background: var(--color-bg-default);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  padding: 10px 12px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background var(--transition-fast);
+}
+
+.sectionHeader:hover {
+  background: var(--color-action-hover);
+}
+
+.sectionHeader:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+}
+
+.sectionTitle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.sectionIcon {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  min-width: 18px;
+}
+
+/* ── Badges ── */
+.badge {
+  font-size: 10px;
+  padding: 2px 7px;
+  border-radius: var(--radius-full);
+  font-weight: var(--font-weight-medium);
+}
+
+.badge_done {
+  background: var(--color-success-light);
+  color: var(--color-success);
+}
+
+.badge_partial {
+  background: var(--color-warning-light);
+  color: var(--color-warning);
+}
+
+.badge_none {
+  background: var(--color-bg-secondary);
+  color: var(--color-text-secondary);
+}
+
+/* ── Items ── */
+.items {
+  padding: 0 12px 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.item {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 6px 0;
+  border-top: 1px solid var(--color-divider);
+}
+
+.item:first-child {
+  border-top: none;
+}
+
+.checkbox {
+  margin-top: 2px;
+  flex-shrink: 0;
+  cursor: pointer;
+  width: 14px;
+  height: 14px;
+  accent-color: var(--color-primary);
+}
+
+.itemLabel {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: 1.5;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+
+.itemLabel:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.itemLabelChecked {
+  color: var(--color-text-disabled);
+  text-decoration: line-through;
+}
+
+.editInput {
+  flex: 1;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-base);
+  color: var(--color-text-primary);
+  background: var(--color-bg-default);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  padding: 2px 6px;
+  line-height: 1.5;
+}
+
+.editInput:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.deleteBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+  opacity: 0;
+  transition: opacity var(--transition-fast);
+}
+
+.item:hover .deleteBtn,
+.deleteBtn:focus-visible {
+  opacity: 1;
+}
+
+.deleteBtn:hover {
+  background: var(--color-action-hover);
+}
+
+.deleteBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}
+
+.addRow {
+  padding: 6px 0;
+  border-top: 1px solid var(--color-divider);
+}
+
+.addBtn {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  margin-top: 4px;
+  padding: 4px 6px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-size: var(--font-size-sm);
+  font-family: var(--font-family-base);
+  color: var(--color-primary);
+  border-radius: var(--radius-sm);
+  transition: background var(--transition-fast);
+}
+
+.addBtn:hover {
+  background: var(--color-action-hover);
+}
+
+.addBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 1px;
+}

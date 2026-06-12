@@ -1,0 +1,75 @@
+/* Quill — Alert */
+.root {
+  display: flex;
+  gap: var(--spacing-2);
+  padding: var(--spacing-3) var(--spacing-3);
+  border-radius: var(--radius-sm);
+  border-left: 3px solid;
+  background: #ffffff;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-body);
+  animation: alertSlideIn 0.2s ease-out both;
+}
+
+@keyframes alertSlideIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Severity variants — only border color changes, background stays white */
+.error   { border-color: var(--color-error); }
+.warning { border-color: var(--color-warning); }
+.info    { border-color: var(--color-info); }
+.success { border-color: var(--color-success); }
+
+.icon {
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.title {
+  font-weight: var(--font-weight-medium);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+}
+
+.body {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-secondary);
+}
+
+.action {
+  margin-top: var(--spacing-1);
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  cursor: pointer;
+  padding: 0;
+  color: var(--color-action-active);
+  display: flex;
+  align-items: flex-start;
+  flex-shrink: 0;
+  transition: color var(--transition-fast);
+}
+
+.closeBtn:hover { color: var(--color-text-primary); }
+
+.closeBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: 2px;
+}

@@ -1,0 +1,247 @@
+/* Haven — SmartGoalCard */
+
+.card {
+  background: var(--color-bg-default);
+  border: 1px solid var(--color-divider);
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+  font-family: var(--font-family-base);
+}
+
+.header {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: 12px 16px;
+  background: var(--color-primary-light);
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.backBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  transition: background var(--transition-fast);
+}
+
+.backBtn:hover {
+  background: rgba(0, 93, 159, 0.1);
+}
+
+.backBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+/* ── Goal picker list ── */
+.goalList {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.goalCard {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid var(--color-divider);
+  cursor: pointer;
+  text-align: left;
+  width: 100%;
+  transition: background var(--transition-fast);
+}
+
+.goalCard:last-child {
+  border-bottom: none;
+}
+
+.goalCard:hover {
+  background: var(--color-primary-light);
+}
+
+.goalCard:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: -2px;
+  background: var(--color-primary-light);
+}
+
+.goalCardDone {
+  opacity: 0.7;
+}
+
+.goalCardLeft {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  flex: 1;
+  min-width: 0;
+}
+
+.goalCardBody {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  flex: 1;
+  min-width: 0;
+}
+
+.goalCardTitle {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-sm);
+}
+
+.goalCardDesc {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+}
+
+.headerTitle {
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+}
+
+.fields {
+  display: flex;
+  flex-direction: column;
+}
+
+.field {
+  padding: 10px 16px;
+  border-bottom: 1px solid var(--color-divider);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.field:last-child {
+  border-bottom: none;
+}
+
+.fieldHeader {
+  display: flex;
+  align-items: center;
+}
+
+.fieldLabel {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-secondary);
+  line-height: 1.4;
+  flex: 1;
+}
+
+.addBtn {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 3px;
+  padding: 3px 8px;
+  background: none;
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  transition: background var(--transition-fast), color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.addBtn:hover {
+  background: var(--color-primary-light);
+}
+
+.addBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.addedBtn {
+  border-color: var(--color-success);
+  color: var(--color-success);
+  cursor: default;
+}
+
+.addedBtn:hover {
+  background: none;
+}
+
+.fieldValue {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background: var(--color-bg-secondary);
+  border: 1px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 6px 8px;
+  width: 100%;
+  font-family: var(--font-family-base);
+  resize: none;
+  line-height: var(--line-height-body);
+  transition: border-color var(--transition-fast);
+  box-sizing: border-box;
+}
+
+.fieldValue:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-bg-default);
+}
+
+.footer {
+  padding: 10px 16px;
+  border-top: 1px solid var(--color-divider);
+  background: var(--color-bg-secondary);
+}
+
+.addAllBtn {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-1);
+  padding: 8px 16px;
+  background: var(--color-primary);
+  border: none;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-inverse);
+  transition: background var(--transition-fast);
+}
+
+.addAllBtn:hover {
+  background: var(--color-primary-hover);
+}
+
+.addAllBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.addAllDone {
+  background: var(--color-success);
+  cursor: default;
+}
+
+.addAllDone:hover {
+  background: var(--color-success);
+}
