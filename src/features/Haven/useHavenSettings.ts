@@ -1,15 +1,21 @@
 import { useState } from 'react'
 
 export interface HavenSettings {
-  responseDetail: 'concise' | 'standard' | 'detailed'
-  showFollowUps: boolean
-  historyRetention: '30days' | '90days' | 'forever'
+  preferredName: string
+  roleDescription: string
+  styleAndTone: 'casual' | 'professional' | 'clinical'
+  language: 'english' | 'spanish'
+  workType: 'clinician' | 'care-coordinator' | 'case-manager' | 'admin' | 'other'
+  fontStyle: 'default' | 'serif' | 'dyslexic'
 }
 
 const DEFAULT: HavenSettings = {
-  responseDetail: 'standard',
-  showFollowUps: true,
-  historyRetention: 'forever',
+  preferredName: '',
+  roleDescription: '',
+  styleAndTone: 'casual',
+  language: 'english',
+  workType: 'care-coordinator',
+  fontStyle: 'default',
 }
 
 const STORAGE_KEY = 'haven-settings-v1'

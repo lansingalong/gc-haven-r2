@@ -16,9 +16,9 @@ interface Props {
 export function CarePlanOpportunityPanel({ opportunities, onBack }: Props) {
   return (
     <div className={styles.root}>
-      <button className={styles.backBtn} type="button" onClick={onBack}>
-        <Icon name="ArrowBack" size="xs" color="action" />
-        Back
+      <button className={styles.backBtn} type="button" onClick={onBack} aria-label="Back">
+        <Icon name="ArrowBack" size="sm" sx={{ color: '#1B456F' }} />
+        <span className={styles.backLabel}>Back</span>
       </button>
 
       <div className={styles.header}>

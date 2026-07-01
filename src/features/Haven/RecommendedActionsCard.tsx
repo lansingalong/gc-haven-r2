@@ -107,8 +107,9 @@ export function RecommendedActionsCard({
         <div className={styles.root}>
           <div className={styles.header}>
             <div className={styles.headerLeft}>
-              <button className={styles.backBtn} type="button" onClick={() => setView('actions')}>
-                <Icon name="ArrowBack" size="xs" color="action" />
+              <button className={styles.backBtn} type="button" onClick={() => setView('actions')} aria-label="Back">
+                <Icon name="ArrowBack" size="sm" sx={{ color: '#1B456F' }} />
+                <span className={styles.backLabel}>Back</span>
               </button>
               <Icon name="TaskAlt" size="sm" color="primary" />
               <span className={styles.title}>Task List</span>

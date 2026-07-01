@@ -1,11 +1,6 @@
 /**
  * Mock response for /v2/Member/Eligibility
- * Member: Henry Tom Garcia (AH0000007)
- * Shape based on the sample JSON in the data requirements sheet.
- *
- * API: /v2/Member/Eligibility
- * Fields sourced from this API per requirements CSV:
- *   - Middle name, Plan_Type (additionalIdentifiers)
+ * Member: Jackson Lee Thomas (AH58319473)
  */
 
 export interface EligibilityRecord {
@@ -43,48 +38,30 @@ export interface MemberEligibility {
 }
 
 export const mockEligibility: MemberEligibility = {
-  memberFirstName: 'Henry',
-  memberMiddleName: 'Tom',
-  memberLastName: 'Garcia',
+  memberFirstName: 'Jackson',
+  memberMiddleName: 'Lee',
+  memberLastName: 'Thomas',
   gender: 'M',
-  memberDOB: '2001-01-01T00:00:00.000Z',
-  clientPatientId: 'AH0000007',
-  medicareID: 'MCR-HG-2024-001',
+  memberDOB: '1971-03-14T00:00:00.000Z',
+  clientPatientId: 'AH58319473',
+  medicareID: '',
   eligibilities: [
     {
       lobBenID: 1,
-      uniqueEligibilityID: 'eligibility-AH0000007-20240101',
+      uniqueEligibilityID: 'eligibility-AH58319473-20260101',
       eligiblityRecords: [
         { level: 1, code: 'AMB', desc: 'Ambetter Health' },
-        { level: 2, code: 'CA', desc: 'California' },
+        { level: 2, code: 'TN', desc: 'Tennessee' },
         { level: 3, code: 'SLV', desc: 'Ambetter Enhanced Care (Silver)' },
       ],
-      startDate: '2024-01-01',
-      endDate: '2024-12-31',
+      startDate: '2026-01-01',
+      endDate: '2026-12-31',
       status: 'Active',
-      eligibilityPath: 'Ambetter Health (AMB) >> California (CA) >> Ambetter Enhanced Care Silver (SLV)',
+      eligibilityPath: 'Ambetter Health (AMB) >> Tennessee (TN) >> Ambetter Enhanced Care Silver (SLV)',
       planType: 'Commercial',
       additionalIdentifiers: [
         { identifierName: 'Plan_Type', identifierValue: 'Commercial' },
-        { identifierName: 'SUBSCRIBER_NO', identifierValue: 'SUB-987654' },
-      ],
-    },
-    {
-      lobBenID: 2,
-      uniqueEligibilityID: 'eligibility-AH0000007-MCD-20230101',
-      eligiblityRecords: [
-        { level: 1, code: 'MCD', desc: 'Medicaid' },
-        { level: 2, code: 'VA', desc: 'Virginia' },
-        { level: 3, code: 'MA00', desc: 'Virginia Medicaid Managed Care' },
-      ],
-      startDate: '2023-01-01',
-      endDate: '2024-12-31',
-      status: 'Active',
-      eligibilityPath: 'Medicaid (MCD) >> Virginia (VA) >> Virginia Medicaid Managed Care (MA00)',
-      planType: 'Medicaid',
-      additionalIdentifiers: [
-        { identifierName: 'Plan_Type', identifierValue: 'Medicaid' },
-        { identifierName: 'MEDICAID_NO', identifierValue: 'MCD-20191-HG001' },
+        { identifierName: 'SUBSCRIBER_NO', identifierValue: 'SUB-583194' },
       ],
     },
   ],

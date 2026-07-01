@@ -81,28 +81,21 @@
   z-index: 10;
   display: flex;
   align-items: center;
-  gap: var(--spacing-1);
-  padding: 4px 10px 4px 6px;
-  background: var(--color-bg-default);
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  border-radius: 50px;
+  gap: 6px;
+  padding: 4px 0;
+  background: none;
+  border: none;
+  border-radius: var(--radius-sm);
   cursor: pointer;
   font-family: var(--font-family-base);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
-  color: var(--color-text-secondary);
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  color: #1B456F;
+  transition: opacity var(--transition-fast);
 }
 
-.backBtn:hover {
-  color: var(--color-text-primary);
-  background: var(--color-bg-sky);
-}
-
-.backBtn:focus-visible {
-  outline: 2px solid var(--color-primary);
-  outline-offset: 2px;
-}
+.backBtn:hover { opacity: 0.75; }
+.backBtn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
 
 /* ── 3. Chat area ── */
 .chatArea {
@@ -125,6 +118,8 @@
   padding: 0 23.75px;
   display: flex;
   flex-direction: column;
+  container-type: inline-size;
+  container-name: haven-chat;
 }
 
 .welcomeWrap {
@@ -135,7 +130,7 @@
 /* ── Member detail menu overlay ── */
 .menuOverlay {
   position: absolute;
-  bottom: calc(var(--spacing-3) + 56px + 24px + 6px); /* above disclaimer + input */
+  bottom: calc(var(--spacing-3) + 56px + 24px + 18px); /* above disclaimer + input */
   left: 23.75px;
   right: 23.75px;
   z-index: 20;
@@ -145,11 +140,11 @@
 }
 
 .menuBackBtn {
-  align-self: flex-start;
+  align-self: flex-end;
   display: flex;
   align-items: center;
   gap: var(--spacing-1);
-  padding: 4px 10px 4px 6px;
+  padding: 6px 14px 6px 10px;
   background: var(--color-bg-default);
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 50px;

@@ -87,8 +87,9 @@ export function SmartGoalCard({ data, onGoalAdded }: { data: SmartGoalData; onGo
   return (
     <div className={styles.card}>
       <div className={styles.header}>
-        <button type="button" className={styles.backBtn} onClick={() => setSelected(null)}>
-          <Icon name="ArrowBack" size="xs" color="primary" />
+        <button type="button" className={styles.backBtn} onClick={() => setSelected(null)} aria-label="Back">
+          <Icon name="ArrowBack" size="sm" sx={{ color: '#1B456F' }} />
+          <span className={styles.backLabel}>Back</span>
         </button>
         <Icon name={goal.iconName as any} size="sm" color="primary" />
         <span className={styles.headerTitle}>{goal.name}</span>

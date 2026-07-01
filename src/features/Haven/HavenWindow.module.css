@@ -91,7 +91,7 @@
   align-items: center;
   justify-content: center;
   user-select: none;
-  transition: right var(--transition-fast), width var(--transition-fast), height var(--transition-fast), border-radius var(--transition-fast);
+  transition: right var(--transition-fast), border-radius var(--transition-fast);
 }
 
 .fabMinimized:hover {
@@ -288,6 +288,9 @@
 /* ── Window container ── */
 .window {
   position: fixed;
+  /* Position is driven entirely by transform: translate() — useLayoutEffect sets it before first paint */
+  left: 0;
+  top: 0;
   z-index: 900;
   display: flex;
   flex-direction: column;
@@ -298,6 +301,9 @@
   background: var(--color-bg-sky);
   min-width: 360px;
   min-height: 300px;
+  /* GPU-composite the window for smooth drag/resize */
+  will-change: transform;
+  contain: layout style;
 }
 
 .window:focus-within {
@@ -426,13 +432,16 @@
 .resizeSE, .resizeSW {
   position: absolute;
   z-index: 10;
+  touch-action: none;
 }
 
-.resizeN  { top: 0;    left: 8px;  right: 8px;  height: 4px; cursor: n-resize;  }
-.resizeS  { bottom: 0; left: 8px;  right: 8px;  height: 4px; cursor: s-resize;  }
-.resizeE  { right: 0;  top: 8px;   bottom: 8px; width: 4px;  cursor: e-resize;  }
-.resizeW  { left: 0;   top: 8px;   bottom: 8px; width: 4px;  cursor: w-resize;  }
-.resizeNE { top: 0;    right: 0;   width: 8px;  height: 8px; cursor: ne-resize; }
-.resizeNW { top: 0;    left: 0;    width: 8px;  height: 8px; cursor: nw-resize; }
-.resizeSE { bottom: 0; right: 0;   width: 8px;  height: 8px; cursor: se-resize; }
-.resizeSW { bottom: 0; left: 0;    width: 8px;  height: 8px; cursor: sw-resize; }
+/* Edges: 6px hit area, extend 3px outside the window border */
+.resizeN  { top: -3px;    left: 14px;  right: 14px; height: 6px;  cursor: n-resize;  }
+.resizeS  { bottom: -3px; left: 14px;  right: 14px; height: 6px;  cursor: s-resize;  }
+.resizeE  { right: -3px;  top: 14px;   bottom: 14px; width: 6px;  cursor: e-resize;  }
+.resizeW  { left: -3px;   top: 14px;   bottom: 14px; width: 6px;  cursor: w-resize;  }
+/* Corners: 14px so they're easy to grab */
+.resizeNE { top: -3px;    right: -3px;  width: 14px; height: 14px; cursor: ne-resize; }
+.resizeNW { top: -3px;    left: -3px;   width: 14px; height: 14px; cursor: nw-resize; }
+.resizeSE { bottom: -3px; right: -3px;  width: 14px; height: 14px; cursor: se-resize; }
+.resizeSW { bottom: -3px; left: -3px;   width: 14px; height: 14px; cursor: sw-resize; }

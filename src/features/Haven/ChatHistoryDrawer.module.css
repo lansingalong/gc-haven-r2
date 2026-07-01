@@ -304,50 +304,59 @@
 .confirmOverlay {
   position: absolute;
   inset: 0;
-  background: rgba(20, 30, 48, 0.4);
+  background: rgba(20, 30, 48, 0.5);
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 40;
-  border-radius: inherit;
+  border-radius: 0;
 }
 
 .confirmDialog {
   background: #fff;
   border-radius: var(--radius-md);
-  padding: 16px 18px 14px;
-  width: 80%;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+  padding: 24px 24px 20px;
+  width: 75%;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.18);
+}
+
+.confirmTitle {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  margin: 0 0 16px;
 }
 
 .confirmText {
   font-family: var(--font-family-base);
-  font-size: var(--font-size-sm);
+  font-size: var(--font-size-md);
   color: var(--color-text-primary);
-  margin: 0 0 14px;
+  line-height: var(--line-height-body);
+  margin: 0 0 24px;
 }
 
 .confirmActions {
   display: flex;
   justify-content: flex-end;
-  gap: 8px;
+  align-items: center;
+  gap: 12px;
 }
 
 .confirmCancel {
   font-family: var(--font-family-base);
-  font-size: var(--font-size-sm);
-  font-weight: 400;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-regular);
   color: var(--color-text-secondary);
   background: none;
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: var(--radius-sm);
-  padding: 5px 12px;
+  border: none;
+  padding: 6px 8px;
   cursor: pointer;
-  transition: background var(--transition-fast);
+  transition: color var(--transition-fast);
 }
 
 .confirmCancel:hover {
-  background: rgba(0, 0, 0, 0.04);
+  color: var(--color-text-primary);
 }
 
 .confirmCancel:focus-visible {
@@ -357,13 +366,13 @@
 
 .confirmDelete {
   font-family: var(--font-family-base);
-  font-size: var(--font-size-sm);
-  font-weight: 400;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-medium);
   color: #fff;
   background: var(--color-error);
   border: none;
   border-radius: var(--radius-sm);
-  padding: 5px 12px;
+  padding: 8px 20px;
   cursor: pointer;
   transition: opacity var(--transition-fast);
 }
@@ -373,7 +382,7 @@
 }
 
 .confirmDelete:focus-visible {
-  outline: 2px solid var(--color-error);
+  outline: 2px solid var(--color-primary);
   outline-offset: 2px;
 }
 

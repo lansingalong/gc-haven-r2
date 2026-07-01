@@ -7,8 +7,13 @@ import { HavenWindow } from './features/Haven/HavenWindow'
  * Members not listed here have no available clinical data in Haven.
  */
 const MOCK_ID_MAP: Record<string, string> = {
-  'jackson-thomas': 'AH0000007', // Henry Garcia mock profile (Diabetes)
-  'maria-rivera':   'AH0000023', // Lisa Thompson mock profile (CHF)
+  'jackson-thomas': 'AH58319473',
+  'maria-rivera':   'AH0000023',
+}
+
+const DISPLAY_ID_MAP: Record<string, string> = {
+  'jackson-thomas': 'MBR-58319-473821',
+  'maria-rivera':   'MBR-72940-158034',
 }
 
 interface ActiveMember {
@@ -54,7 +59,7 @@ export default function App() {
           key={member.key}
           memberName={member.name}
           phone={member.phone}
-          memberId={member.key}
+          memberId={DISPLAY_ID_MAP[member.key] ?? member.key}
           pcp={member.pcp}
           mockMemberId={MOCK_ID_MAP[member.key]}
           hasData={member.key in MOCK_ID_MAP}

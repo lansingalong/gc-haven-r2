@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
+import { Icon } from '@/components/Icons'
 import styles from './SukiWindow.module.css'
 
 const SUKI_W = 440
@@ -366,9 +367,8 @@ export function SukiWindow({ onClose, onNoteSent, onAlert, memberName, memberId,
         <div className={styles.detailView}>
           <div className={styles.detailNav}>
             <button className={styles.backBtn} type="button" aria-label="Back" onClick={() => setView('notes')}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 5l-7 7 7 7"/>
-              </svg>
+              <Icon name="ArrowBack" size="sm" sx={{ color: '#1B456F' }} />
+              <span className={styles.backLabel}>Back</span>
             </button>
             <button className={styles.moreBtn} type="button" aria-label="More options">
               <svg width="4" height="18" viewBox="0 0 4 18" fill="currentColor">
@@ -431,9 +431,8 @@ export function SukiWindow({ onClose, onNoteSent, onAlert, memberName, memberId,
         <div className={styles.summaryView}>
           <div className={styles.detailNav}>
             <button className={styles.backBtn} type="button" aria-label="Back" onClick={() => setView('notes')}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M19 12H5M12 5l-7 7 7 7"/>
-              </svg>
+              <Icon name="ArrowBack" size="sm" sx={{ color: '#1B456F' }} />
+              <span className={styles.backLabel}>Back</span>
             </button>
           </div>
 

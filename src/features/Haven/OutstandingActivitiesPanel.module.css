@@ -8,21 +8,23 @@
 .backBtn {
   display: flex;
   align-items: center;
-  gap: 4px;
+  gap: 6px;
   background: none;
   border: none;
-  padding: 2px 0;
+  padding: 4px 0;
   cursor: pointer;
-  font-family: var(--font-family-base);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
-  align-self: flex-start;
   border-radius: var(--radius-sm);
-  transition: color var(--transition-fast);
+  transition: opacity var(--transition-fast);
 }
 
-.backBtn:hover {
-  color: var(--color-text-primary);
+.backBtn:hover { opacity: 0.75; }
+.backBtn:focus-visible { outline: 2px solid var(--color-primary); outline-offset: 2px; }
+
+.backLabel {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: #1B456F;
 }
 
 .header {

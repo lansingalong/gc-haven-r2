@@ -1,13 +1,16 @@
 import { KeyboardEvent, useRef, useState } from 'react'
 import aiSparkle from '@/assets/ai_sparkle.png'
-import sendIcon from '@/assets/send_icon.png'
+import { Icon } from '@/components/Icons'
+import { T, type Language } from './translations'
 import styles from './AskHavenInput.module.css'
 
 export interface AskHavenInputProps {
   onSubmit?: (value: string) => void
+  language?: Language
 }
 
-export function AskHavenInput({ onSubmit }: AskHavenInputProps) {
+export function AskHavenInput({ onSubmit, language = 'english' }: AskHavenInputProps) {
+  const t = T[language]
   const [value, setValue] = useState('')
   const inputRef = useRef<HTMLInputElement>(null)
 
@@ -34,8 +37,8 @@ export function AskHavenInput({ onSubmit }: AskHavenInputProps) {
             value={value}
             onChange={e => setValue(e.target.value)}
             onKeyDown={handleKeyDown}
-            placeholder="Ask Haven"
-            aria-label="Ask Haven"
+            placeholder={t.askHavenPlaceholder}
+            aria-label={t.askHavenPlaceholder}
           />
         </div>
         <button
@@ -45,7 +48,7 @@ export function AskHavenInput({ onSubmit }: AskHavenInputProps) {
           aria-label="Send"
           disabled={!value.trim()}
         >
-          <img src={sendIcon} width={24} height={24} alt="" aria-hidden="true" />
+          <Icon name="Send" size="md" color="inherit" />
         </button>
       </div>
     </div>

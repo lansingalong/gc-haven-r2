@@ -2,8 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react'
 import { Icon } from '@/components/Icons'
 import type { ChatSession } from './useChatHistory'
 import type { Message } from './ChatMessages'
-import { SettingsPanel } from './SettingsPanel'
-import { useHavenSettings } from './useHavenSettings'
+import { T, type Language } from './translations'
 import styles from './ChatHistoryDrawer.module.css'
 
 interface ChatHistoryDrawerProps {
@@ -15,19 +14,21 @@ interface ChatHistoryDrawerProps {
   onToggleFavorite: (id: string) => void
   onClearHistory: () => void
   onLearnMore?: () => void
+  onOpenSettings?: () => void
+  language?: Language
 }
 
-function SessionItem({ session, onSelect, onDelete, onToggleFavorite }: {
+function SessionItem({ session, onSelect, onDelete, onToggleFavorite, onRequestDelete, language = 'english' }: {
   session: ChatSession
   onSelect: () => void
   onDelete: () => void
   onToggleFavorite: () => void
+  onRequestDelete: () => void
+  language?: Language
 }) {
   const [menuOpen, setMenuOpen] = useState(false)
-  const [confirmDelete, setConfirmDelete] = useState(false)
   const menuRef = useRef<HTMLDivElement>(null)
   const menuBtnRef = useRef<HTMLButtonElement>(null)
-  const cancelBtnRef = useRef<HTMLButtonElement>(null)
 
   useEffect(() => {
     if (!menuOpen) return
@@ -45,12 +46,9 @@ function SessionItem({ session, onSelect, onDelete, onToggleFavorite }: {
     }
   }, [menuOpen])
 
-  useEffect(() => {
-    if (confirmDelete) cancelBtnRef.current?.focus()
-  }, [confirmDelete])
-
+  const t = T[language]
   const label = session.summary ?? session.preview
-  const favLabel = session.favorited ? 'Favorited' : ''
+  const favLabel = session.favorited ? t.unfavorite : ''
 
   return (
     <div className={styles.sessionRow}>
@@ -87,57 +85,32 @@ function SessionItem({ session, onSelect, onDelete, onToggleFavorite }: {
               onClick={() => { onToggleFavorite(); setMenuOpen(false) }}
             >
               <Icon name={session.favorited ? 'StarBorder' : 'Star'} size="sm" color="action" aria-hidden="true" />
-              {session.favorited ? 'Unfavorite' : 'Favorite'}
+              {session.favorited ? t.unfavorite : t.favorite}
             </button>
             <button
               className={`${styles.dropdownItem} ${styles.dropdownItemDelete}`}
               type="button"
               role="menuitem"
-              onClick={() => { setMenuOpen(false); setConfirmDelete(true) }}
+              onClick={() => { setMenuOpen(false); onRequestDelete() }}
             >
               <Icon name="DeleteOutlined" size="sm" color="error" aria-hidden="true" />
-              Delete
+              {t.delete}
             </button>
           </div>
         )}
       </div>
-
-      {confirmDelete && (
-        <div className={styles.confirmOverlay} role="dialog" aria-modal="true" aria-label="Confirm delete">
-          <div className={styles.confirmDialog}>
-            <p className={styles.confirmText}>Delete this chat?</p>
-            <div className={styles.confirmActions}>
-              <button
-                ref={cancelBtnRef}
-                className={styles.confirmCancel}
-                type="button"
-                onClick={() => { setConfirmDelete(false); menuBtnRef.current?.focus() }}
-              >
-                Cancel
-              </button>
-              <button
-                className={styles.confirmDelete}
-                type="button"
-                onClick={() => { setConfirmDelete(false); onDelete() }}
-              >
-                Delete
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
     </div>
   )
 }
 
-export function ChatHistoryDrawer({ sessions, onClose, onSelectSession, onNewConversation, onDelete, onToggleFavorite, onClearHistory, onLearnMore }: ChatHistoryDrawerProps) {
-  const [settingsOpen, setSettingsOpen] = useState(false)
-  const { settings, updateSettings } = useHavenSettings()
+export function ChatHistoryDrawer({ sessions, onClose, onSelectSession, onNewConversation, onDelete, onToggleFavorite, onClearHistory, onLearnMore, onOpenSettings, language = 'english' }: ChatHistoryDrawerProps) {
+  const t = T[language]
+  const [pendingDeleteId, setPendingDeleteId] = useState<string | null>(null)
+  const cancelBtnRef = useRef<HTMLButtonElement>(null)
 
-  const handleLearnMore = () => {
-    onClose()
-    onLearnMore?.()
-  }
+  useEffect(() => {
+    if (pendingDeleteId) cancelBtnRef.current?.focus()
+  }, [pendingDeleteId])
 
   const handleKeyDown = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Escape') onClose()
@@ -146,20 +119,10 @@ export function ChatHistoryDrawer({ sessions, onClose, onSelectSession, onNewCon
   return (
     <div className={styles.root} onKeyDown={handleKeyDown}>
       <nav className={styles.sidebar} aria-label="Chat history">
-        {settingsOpen ? (
-          <SettingsPanel
-            settings={settings}
-            onUpdate={updateSettings}
-            onBack={() => setSettingsOpen(false)}
-            onClearHistory={() => { onClearHistory(); setSettingsOpen(false) }}
-            sessionCount={sessions.length}
-            onLearnMore={handleLearnMore}
-          />
-        ) : (
-          <>
-            <button className={styles.closeBtn} onClick={onClose} type="button" aria-label="Close sidebar">
-              <Icon name="Close" size="md" color="action" />
-            </button>
+        <>
+          <button className={styles.closeBtn} onClick={onClose} type="button" aria-label="Close sidebar">
+            <Icon name="Close" size="md" color="action" />
+          </button>
 
             <button
               className={styles.newChatBtn}
@@ -169,13 +132,13 @@ export function ChatHistoryDrawer({ sessions, onClose, onSelectSession, onNewCon
               <span className={styles.newChatIcon}>
                 <Icon name="Add" size="sm" color="inverse" />
               </span>
-              <span className={styles.newChatLabel}>New Chat</span>
+              <span className={styles.newChatLabel}>{t.newChat}</span>
             </button>
 
             <div className={styles.list} role="list">
               {sessions.filter(s => s.favorited).length > 0 && (
-                <div role="group" aria-label="Favorites">
-                  <p className={styles.listLabel} aria-hidden="true">Favorites</p>
+                <div role="group" aria-label={t.favorites}>
+                  <p className={styles.listLabel} aria-hidden="true">{t.favorites}</p>
                   {sessions.filter(s => s.favorited).map(session => (
                     <SessionItem
                       key={session.id}
@@ -183,13 +146,15 @@ export function ChatHistoryDrawer({ sessions, onClose, onSelectSession, onNewCon
                       onSelect={() => { onSelectSession(session.messages, session.id); onClose() }}
                       onDelete={() => onDelete(session.id)}
                       onToggleFavorite={() => onToggleFavorite(session.id)}
+                      onRequestDelete={() => setPendingDeleteId(session.id)}
+                      language={language}
                     />
                   ))}
                 </div>
               )}
               {sessions.filter(s => !s.favorited).length > 0 && (
-                <div role="group" aria-label="Recent">
-                  <p className={styles.listLabel} aria-hidden="true">Recent</p>
+                <div role="group" aria-label={t.recent}>
+                  <p className={styles.listLabel} aria-hidden="true">{t.recent}</p>
                   {sessions.filter(s => !s.favorited).map(session => (
                     <SessionItem
                       key={session.id}
@@ -197,6 +162,8 @@ export function ChatHistoryDrawer({ sessions, onClose, onSelectSession, onNewCon
                       onSelect={() => { onSelectSession(session.messages, session.id); onClose() }}
                       onDelete={() => onDelete(session.id)}
                       onToggleFavorite={() => onToggleFavorite(session.id)}
+                      onRequestDelete={() => setPendingDeleteId(session.id)}
+                      language={language}
                     />
                   ))}
                 </div>
@@ -206,14 +173,41 @@ export function ChatHistoryDrawer({ sessions, onClose, onSelectSession, onNewCon
             <button
               className={styles.settingsBtn}
               type="button"
-              onClick={() => setSettingsOpen(true)}
+              onClick={() => onOpenSettings?.()}
             >
               <Icon name="Settings" size="sm" color="action" />
-              <span className={styles.settingsLabel}>Settings</span>
+              <span className={styles.settingsLabel}>{t.settings}</span>
             </button>
           </>
-        )}
+
+
       </nav>
+
+      {pendingDeleteId && (
+        <div className={styles.confirmOverlay} role="dialog" aria-modal="true" aria-label={t.deleteChat}>
+          <div className={styles.confirmDialog}>
+            <p className={styles.confirmTitle}>{t.deleteChat}</p>
+            <p className={styles.confirmText}>{t.deleteChatBody}</p>
+            <div className={styles.confirmActions}>
+              <button
+                ref={cancelBtnRef}
+                className={styles.confirmCancel}
+                type="button"
+                onClick={() => setPendingDeleteId(null)}
+              >
+                {t.cancel}
+              </button>
+              <button
+                className={styles.confirmDelete}
+                type="button"
+                onClick={() => { onDelete(pendingDeleteId); setPendingDeleteId(null) }}
+              >
+                {t.delete}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
 
       <div
         className={styles.overlay}

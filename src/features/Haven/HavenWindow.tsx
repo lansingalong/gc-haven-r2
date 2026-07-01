@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react'
 import { Icon, AiAssistant } from '@/components/Icons'
 import { MemberHeader } from './MemberHeader'
 import { ChatWelcome } from './ChatWelcome'
@@ -12,11 +12,34 @@ import styles from './HavenWindow.module.css'
 import panelStyles from './HavenPanel.module.css'
 import { getMockReply, getFollowUp, getFollowUpQuery, getGuardrailMessage, getRecommendedActionsFromNote, getLastUpdateData, getOpenCareGaps } from './mockReplies'
 import { type SmartGoalData } from './SmartGoalCard'
+import { type MedicationsCardData } from './MedicationsCard'
+import { type ContactHistoryCardData } from './ContactHistoryCard'
+import { type OGICardData } from './OGICard'
+import { type CareGapsCardData } from './CareGapsCard'
+import { type ConditionsCardData } from './ConditionsCard'
+import { type AuthorizationsCardData } from './AuthorizationsCard'
+import { type AssessmentsCardData } from './AssessmentsCard'
+import { type EligibilityCardData } from './EligibilityCard'
+import { type RiskLevelCardData } from './RiskLevelCard'
+import { type OutstandingActivitiesCardData } from './OutstandingActivitiesCard'
+import { type PreCallBriefCardData } from './PreCallBriefCard'
+import {
+  mockMedications, mockVisits, mockDiagnosis, mockGapsInCare,
+  mockEligibility, mockActivitySummary, mockCarePlan, mockPrograms,
+} from '@/mocks'
+import {
+  lisaMedications, lisaVisits, lisaDiagnosis, lisaGapsInCare,
+  lisaEligibility, lisaActivitySummary, lisaCarePlan, lisaPrograms,
+  lisaMemberDetail,
+} from '@/mocks/lisaThompson'
+import { mockMemberDetail } from '@/mocks/memberDetail'
 import { HomeWelcome } from './HomeWelcome'
 import { MemberChatWindow } from './MemberChatWindow'
 import { SukiWindow, type Alert as SukiAlert } from './SukiWindow'
 import { ChatHistoryDrawer } from './ChatHistoryDrawer'
 import { PresetPromptsPanel } from './PresetPromptsPanel'
+import { SettingsPanel } from './SettingsPanel'
+import { useHavenSettings } from './useHavenSettings'
 import { RecommendedActionsCard } from './RecommendedActionsCard'
 import { CallInsightsCard } from './CallInsightsCard'
 import { AddActivityModal, type ActivityConfig } from './AddActivityModal'
@@ -24,6 +47,336 @@ import { Alert } from '@/components'
 import { useChatHistory } from './useChatHistory'
 import chatIcon from '@/assets/chat.png'
 import chevronForwardIcon from '@/assets/chevron_forward.png'
+
+const FONT_MAP: Record<string, string> = {
+  default:  '"Roboto", sans-serif',
+  serif:    'Georgia, serif',
+  dyslexic: '"OpenDyslexic", sans-serif',
+}
+
+/* ── Card data builders ─────────────────────────────────────────────────── */
+
+function getMedicationsCardData(firstName: string, memberId: string): MedicationsCardData {
+  const meds = memberId === 'AH72940158' ? lisaMedications : mockMedications
+  return {
+    memberFirstName: firstName,
+    medications: meds.map(m => ({ ...m })),
+    lastReconDate: meds.find(m => m.isCurrent)?.lastReconDate,
+  }
+}
+
+function getContactHistoryCardData(firstName: string, memberId: string): ContactHistoryCardData {
+  const isLisa = memberId === 'AH72940158'
+  const detail = isLisa ? lisaMemberDetail : mockMemberDetail
+  const preferred = detail.phones.find(p => p.isPreferred)
+  return {
+    memberFirstName: firstName,
+    contacts: isLisa ? [
+      { date: '2026-03-10', type: 'connected', channel: 'Phone', timeOfDay: 'Morning', summary: 'Vital check, medication review, care plan goals reviewed' },
+      { date: '2026-02-14', type: 'connected', channel: 'Phone', timeOfDay: 'Morning', summary: 'PHQ-9 administered (score 9), flu vaccine discussed' },
+      { date: '2026-01-15', type: 'connected', channel: 'Phone', timeOfDay: 'Morning', summary: 'Post-discharge follow-up call (CHF hospitalization 12/2025)' },
+    ] : [
+      { date: '2026-02-20', type: 'connected', channel: 'Phone', timeOfDay: 'Afternoon', summary: 'Medication check-in, A1C results reviewed, DPP program discussed' },
+      { date: '2026-03-10', type: 'missed', channel: 'Phone', timeOfDay: 'Morning', summary: undefined },
+      { date: '2026-01-25', type: 'connected', channel: 'Phone', timeOfDay: 'Afternoon', summary: 'Upcoming PCP visit confirmed, transportation barrier noted' },
+      { date: '2026-01-10', type: 'connected', channel: 'Phone', timeOfDay: 'Afternoon', summary: 'Care plan review, goals discussed' },
+    ],
+    preferredPhone: preferred?.phoneNumber ?? 'N/A',
+    preferredTime: preferred?.bestTimeToCall ?? 'N/A',
+    communicationImpairments: detail.communicationImpairments,
+  }
+}
+
+function getOGICardData(firstName: string, memberId: string): OGICardData {
+  const plan = memberId === 'AH72940158' ? lisaCarePlan : mockCarePlan
+  return {
+    memberFirstName: firstName,
+    ogis: plan.map(c => ({
+      category: c.category,
+      opportunity: c.opportunity,
+      goal: c.goal,
+      intervention: c.intervention,
+      status: c.status,
+      priority: c.priority,
+      targetDate: c.targetDate,
+      term: c.term,
+      barriers: c.barriers.filter(b => b.status === 'Active').map(b => b.barrier),
+    })),
+  }
+}
+
+function getCareGapsCardData(firstName: string, memberId: string): CareGapsCardData {
+  const gaps = memberId === 'AH72940158' ? lisaGapsInCare : mockGapsInCare
+  return {
+    memberFirstName: firstName,
+    gaps: gaps.map(g => ({
+      opportunity: g.opportunity,
+      measureCode: g.measureCode,
+      measureCategory: g.measureCategory,
+      ncqaGrouping: g.ncqaGrouping,
+      measureDescription: g.measureDescription,
+      opportunityStatus: g.opportunityStatus as 'Open' | 'Closed',
+      identifiedDate: g.identifiedDate,
+      updatedOn: g.updatedOn,
+    })),
+  }
+}
+
+function getConditionsCardData(firstName: string, memberId: string): ConditionsCardData {
+  const dx = memberId === 'AH72940158' ? lisaDiagnosis : mockDiagnosis
+  const visits = memberId === 'AH72940158' ? lisaVisits : mockVisits
+  return {
+    memberFirstName: firstName,
+    conditions: dx.map(d => ({
+      diagnosisCode: d.diagnosisCode,
+      condition: d.condition,
+      category: d.category,
+      level: d.level,
+      startDate: d.startDate,
+      isPrimaryDiagnosis: d.isPrimaryDiagnosis,
+    })),
+    lastUpdated: visits[0]?.serviceFrom,
+  }
+}
+
+function getAuthorizationsCardData(firstName: string, memberId: string): AuthorizationsCardData {
+  const visits = memberId === 'AH72940158' ? lisaVisits : mockVisits
+  return {
+    memberFirstName: firstName,
+    claims: visits.map(v => ({
+      visitType: v.visitType,
+      serviceFrom: v.serviceFrom,
+      serviceTo: v.serviceTo,
+      reasonForVisit: v.reasonForVisit,
+      providerName: v.providerName,
+      procedureCode: v.procedureCode,
+      diagnosisCode: v.diagnosisCode,
+      payor: v.payor,
+      lengthOfStay: v.lengthOfStay,
+    })),
+  }
+}
+
+function getAssessmentsCardData(firstName: string, memberId: string): AssessmentsCardData {
+  const summary = memberId === 'AH72940158' ? lisaActivitySummary : mockActivitySummary
+  const programs = memberId === 'AH72940158' ? lisaPrograms : mockPrograms
+  return {
+    memberFirstName: firstName,
+    assessments: summary.map(a => ({
+      submissionId: a.submissionId,
+      assessmentName: a.assessmentName,
+      assessmentStatus: a.assessmentStatus,
+      completedDate: a.assessmentCompletedDateTime,
+      performedBy: a.performedBy,
+      contactType: a.contactType,
+      score: a.assessmentScore,
+      outcome: a.activityOutcome,
+      duration: a.actualDuration,
+      programName: a.programName ?? programs[0]?.program ?? 'Care Coordination',
+    })),
+  }
+}
+
+function getEligibilityCardData(firstName: string, memberId: string): EligibilityCardData {
+  const elig = memberId === 'AH72940158' ? lisaEligibility : mockEligibility
+  return {
+    memberFirstName: firstName,
+    memberDOB: elig.memberDOB,
+    gender: elig.gender,
+    medicareId: elig.medicareID,
+    eligibilities: elig.eligibilities.map(e => ({
+      eligibilityPath: e.eligibilityPath,
+      planType: e.planType,
+      startDate: e.startDate,
+      endDate: e.endDate,
+      status: e.status,
+      policyNumber: e.additionalIdentifiers.find(i => i.identifierName.includes('NO') || i.identifierName.includes('SUBSCRIBER'))?.identifierValue,
+    })),
+  }
+}
+
+function getRiskLevelCardData(firstName: string, memberId: string): RiskLevelCardData {
+  const isLisa = memberId === 'AH72940158'
+  return isLisa ? {
+    memberFirstName: firstName,
+    riskTier: 'Tier 4',
+    riskLabel: 'High',
+    riskScore: 88,
+    riskScoreMax: 100,
+    readmissionRisk: 'High',
+    hospitalizationRisk: 'High',
+    lastAssessmentDate: '03/2026',
+    drivers: [
+      { condition: 'Congestive Heart Failure', detail: 'BNP 420 pg/mL, recent hospitalization 12/2025' },
+      { condition: 'COPD', detail: 'O₂ saturation 94%, below goal (≥96%)' },
+      { condition: 'Type 2 Diabetes', detail: 'A1C 8.2%, above goal' },
+      { condition: 'CKD Stage 3', detail: 'eGFR 48, monitor for progression' },
+    ],
+  } : {
+    memberFirstName: firstName,
+    riskTier: 'Tier 4',
+    riskLabel: 'High',
+    riskScore: 82,
+    riskScoreMax: 100,
+    readmissionRisk: 'High',
+    hospitalizationRisk: 'High',
+    lastAssessmentDate: '06/2026',
+    drivers: [
+      { condition: 'Type 2 Diabetes with DKA', detail: 'A1C 9.8%, recent DKA hospitalization 05/2026; now on basal insulin' },
+      { condition: 'Essential Hypertension', detail: 'BP 144/92 at last visit, above target (<130/80)' },
+      { condition: 'Diabetic Nephropathy (Stage G2)', detail: 'eGFR 68, elevated urine albumin-creatinine ratio' },
+      { condition: 'Diabetic Peripheral Neuropathy', detail: 'Bilateral foot numbness, fall risk — podiatry not yet scheduled' },
+      { condition: 'Hyperlipidemia', detail: 'LDL 128 mg/dL on statin, not at goal (<70 mg/dL for high-risk)' },
+    ],
+  }
+}
+
+function getPreCallBriefCardData(firstName: string, memberId: string): PreCallBriefCardData {
+  const isLisa = memberId === 'AH72940158'
+  const detail = isLisa ? lisaMemberDetail : mockMemberDetail
+  const elig = isLisa ? lisaEligibility : mockEligibility
+  const meds = isLisa ? lisaMedications : mockMedications
+  const visits = isLisa ? lisaVisits : mockVisits
+  const dx = isLisa ? lisaDiagnosis : mockDiagnosis
+  const gaps = isLisa ? lisaGapsInCare : mockGapsInCare
+  const plan = isLisa ? lisaCarePlan : mockCarePlan
+  const programs = isLisa ? lisaPrograms : mockPrograms
+
+  const preferred = detail.phones.find(p => p.isPreferred)
+  const primaryProgram = programs.find(p => p.status === 'Active') ?? programs[0]
+  const activeMeds = meds.filter(m => m.isCurrent)
+  const openGaps = gaps.filter(g => g.opportunityStatus === 'Open')
+  const activeOGIs = plan.filter(o => o.status !== 'Closed')
+  const recentVisits = [...visits].sort((a, b) => b.serviceFrom.localeCompare(a.serviceFrom))
+
+  const riskData = isLisa
+    ? {
+        riskTier: 'Tier 4', riskLabel: 'High', riskScore: 88, riskScoreMax: 100,
+        riskDrivers: [
+          { condition: 'Congestive Heart Failure', detail: 'BNP 420 pg/mL, recent hospitalization 12/2025' },
+          { condition: 'COPD', detail: 'O₂ saturation 94%, below goal (≥96%)' },
+          { condition: 'Type 2 Diabetes', detail: 'A1C 8.2%, above goal' },
+          { condition: 'CKD Stage 3', detail: 'eGFR 48, monitor for progression' },
+        ],
+      }
+    : {
+        riskTier: 'Tier 4', riskLabel: 'High', riskScore: 82, riskScoreMax: 100,
+        riskDrivers: [
+          { condition: 'Type 2 Diabetes with DKA', detail: 'A1C 9.8%, recent DKA hospitalization 05/2026; now on basal insulin' },
+          { condition: 'Essential Hypertension', detail: 'BP 144/92 at last visit, above target (<130/80)' },
+          { condition: 'Diabetic Nephropathy (Stage G2)', detail: 'eGFR 68, elevated urine albumin-creatinine ratio' },
+          { condition: 'Diabetic Peripheral Neuropathy', detail: 'Bilateral foot numbness, fall risk — podiatry not yet scheduled' },
+          { condition: 'Hyperlipidemia', detail: 'LDL 128 mg/dL on statin, not at goal (<70 mg/dL for high-risk)' },
+        ],
+      }
+
+  const lastUpdate = recentVisits[0]?.serviceFrom ?? plan[0]?.targetDate ?? ''
+
+  return {
+    memberFirstName: firstName,
+    referralProgram: primaryProgram?.program ?? 'Care Coordination',
+    referralBy: primaryProgram?.referralSource ?? 'Care Manager',
+    referralDate: primaryProgram?.startDate ?? '',
+    referralLastUpdated: primaryProgram?.updatedOn ?? primaryProgram?.startDate ?? '',
+    eligibilityLastUpdated: elig.eligibilities[0]?.endDate ?? elig.eligibilities[0]?.startDate ?? '',
+    eligibilities: elig.eligibilities.slice(0, 1).map(e => {
+      const pathParts = e.eligibilityPath.split('>>')
+      const planName = pathParts[pathParts.length - 1]?.trim() ?? e.eligibilityPath
+      const lineOfBusiness = pathParts[0]?.trim().replace(/\s*\(.*?\)/, '') ?? 'Ambetter Health'
+      return {
+        status: 'Active',
+        startDate: e.startDate,
+        planName,
+        lineOfBusiness,
+      }
+    }),
+    riskTier: riskData.riskTier,
+    riskLabel: riskData.riskLabel,
+    riskScore: riskData.riskScore,
+    riskScoreMax: riskData.riskScoreMax,
+    riskDrivers: riskData.riskDrivers,
+    riskLastUpdated: isLisa ? '06/10/2026' : '06/10/2026',
+    activeMedCount: activeMeds.length,
+    medsLastUpdated: activeMeds[0]?.lastReconDate ?? '',
+    keyMedications: activeMeds.slice(0, 6).map(m => ({
+      name: m.medicationName,
+      dosage: m.dosage,
+      frequency: m.frequency,
+      medicationClass: m.medicationClass,
+      prescribedBy: m.prescribedBy,
+      startDate: m.startDate,
+      dispensedDate: m.dispensedDate,
+    })),
+    discontinuedMedications: meds.filter(m => !m.isCurrent && m.endDate).map(m => ({
+      name: m.medicationName,
+      dosage: m.dosage,
+      endDate: m.endDate!,
+      prescribedBy: m.prescribedBy,
+    })),
+    recentClaims: recentVisits.slice(0, 5).map(v => ({
+      visitType: v.visitType,
+      date: v.serviceFrom,
+      provider: v.providerName,
+      procedureCode: v.procedureCode,
+      reasonForVisit: v.reasonForVisit,
+    })),
+    claimsApproved: Math.max(0, recentVisits.length - 1),
+    claimsPending: recentVisits.length > 0 ? 1 : 0,
+    claimsDenied: 0,
+    claimsTypeBreakdown: (() => {
+      const counts: Record<string, number> = {}
+      recentVisits.forEach(v => {
+        const type = v.visitType.includes('Emergency') ? 'ER'
+          : v.visitType.includes('Pharmacy') ? 'Pharmacy'
+          : v.visitType.includes('Telehealth') ? 'Telehealth'
+          : v.visitType.includes('Inpatient') ? 'Inpatient'
+          : v.visitType.includes('Specialist') ? 'Specialist'
+          : 'PCP'
+        counts[type] = (counts[type] ?? 0) + 1
+      })
+      return Object.entries(counts).map(([type, count]) => ({ type, count }))
+    })(),
+    conditions: dx.map(d => ({
+      condition: d.condition,
+      code: d.diagnosisCode,
+      level: d.level,
+      isPrimary: d.isPrimaryDiagnosis,
+      isNew: false,
+    })),
+    openCareGaps: openGaps.map(g => ({
+      opportunity: g.opportunity,
+      measureCode: g.measureCode,
+    })),
+    activeOGIs: activeOGIs.map(o => ({
+      opportunity: o.opportunity,
+      category: o.category,
+      status: o.status,
+      targetDate: o.targetDate,
+    })),
+    preferredPhone: preferred?.phoneNumber ?? 'N/A',
+    bestTimeToCall: preferred?.bestTimeToCall ?? 'N/A',
+    communicationImpairments: detail.communicationImpairments,
+    preferredLanguage: detail.primaryLanguage,
+    preferredContactFormat: detail.preferredContactFormat,
+    lastRecordUpdate: lastUpdate,
+  }
+}
+
+function getOutstandingActivitiesCardData(firstName: string, memberId: string): OutstandingActivitiesCardData {
+  const programs = memberId === 'AH72940158' ? lisaPrograms : mockPrograms
+  const activities = programs.flatMap(p =>
+    p.requiredActivities.map(a => ({
+      activityType: a.activityType,
+      scriptName: a.scriptName,
+      dueDate: a.dueDate,
+      status: a.status,
+      contactType: a.contactType,
+      outcomeType: a.outcomeType,
+      programName: p.program,
+    }))
+  )
+  return { memberFirstName: firstName, activities }
+}
 
 const JACKSON_SMART_GOAL: SmartGoalData = {
   goals: [
@@ -170,6 +523,10 @@ export function HavenWindow({
   const [fabExpanded, setFabExpanded] = useState(true)
   const [historyOpen, setHistoryOpen] = useState(false)
   const [presetsOpen, setPresetsOpen] = useState(false)
+  const [fromPresets, setFromPresets] = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const { settings, updateSettings } = useHavenSettings()
+  const [previewFont, setPreviewFont] = useState<string | null>(null)
   const [sukiActionsReady, setSukiActionsReady] = useState(false)
   const [callInsightsOpen, setCallInsightsOpen] = useState(false)
   const [liveAlerts, setLiveAlerts] = useState<SukiAlert[]>([])
@@ -214,9 +571,11 @@ export function HavenWindow({
     }
   }, [])
 
-  const [pos, setPos] = useState({ left: 0, top: 0 })
+  const [pos, setPos] = useState(() => ({
+    left: window.innerWidth  - defaultRight  - defaultWidth,
+    top:  window.innerHeight - defaultBottom - defaultHeight,
+  }))
   const [size, setSize] = useState({ w: defaultWidth, h: defaultHeight })
-  const [posReady, setPosReady] = useState(false)
   const windowRef = useRef<HTMLDivElement>(null)
 
   // Set to true on unmount so any in-progress async response is discarded (member switched)
@@ -227,15 +586,10 @@ export function HavenWindow({
   const savedFabStateRef = useRef<{ winState: WindowState; memberChatOpen: boolean; sukiOpen: boolean } | null>(null)
 
   useEffect(() => {
-    setPos({
-      left: window.innerWidth - defaultRight - defaultWidth,
-      top: window.innerHeight - defaultBottom - defaultHeight,
-    })
-    setPosReady(true)
     cancelledRef.current = false
     // On unmount (member switch), cancel any in-flight response
     return () => { cancelledRef.current = true }
-  }, [defaultBottom, defaultRight, defaultWidth, defaultHeight])
+  }, [])
 
   /* ── Show confirmation or no-data message on first open ── */
   useEffect(() => {
@@ -277,11 +631,12 @@ export function HavenWindow({
   }, [])
 
   /* ── Send a message ── */
-  const sendMessage = useCallback(async (text: string) => {
+  const sendMessage = useCallback(async (text: string, _fromPresetPanel = false) => {
     const trimmed = text.trim()
     if (!trimmed || loading) return
     cancelledRef.current = false
     setSkipWelcome(false)
+    if (!_fromPresetPanel) setFromPresets(false)
 
     // No-data members: block queries and surface a clear message
     if (!hasData) {
@@ -364,6 +719,69 @@ export function HavenWindow({
       return
     }
 
+    // "Prepare me for a member call" — return follow-up question with multiple choice
+    if (/^prepare me for a member call$/i.test(resolvedText.trim())) {
+      setMessages(prev => [...prev, userMsg])
+      setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false)
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 400))
+      setLoading(false)
+      if (cancelledRef.current) return
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: 'Is this your first outreach, an intake or a follow-up call?',
+        followUpChips: [
+          { label: 'First outreach', query: 'Prepare me for a first outreach call' },
+          { label: 'Intake', query: 'Prepare me for an intake call' },
+          { label: 'Follow-up call', query: 'Prepare me for a follow-up call' },
+        ],
+      }])
+      return
+    }
+
+    // "Catch me up on member's care" — return follow-up question with multiple choice
+    if (/^catch me up on member'?s care$/i.test(resolvedText.trim())) {
+      setMessages(prev => [...prev, userMsg])
+      setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false)
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 400))
+      setLoading(false)
+      if (cancelledRef.current) return
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: 'What do you want to focus on?',
+        followUpChips: [
+          { label: 'A care plan review', query: "Review member's current care plan" },
+          { label: 'A recent ER visit or hospitalization', query: 'Catch me up on recent ER visits or hospitalizations' },
+          { label: 'Overall activity and goals', query: 'Catch me up on overall activity and goals' },
+        ],
+      }])
+      return
+    }
+
+    // "Help me with admin for this member" — return follow-up question with multiple choice
+    if (/^help me with admin for this member$/i.test(resolvedText.trim())) {
+      setMessages(prev => [...prev, userMsg])
+      setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false)
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 400))
+      setLoading(false)
+      if (cancelledRef.current) return
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: 'What do you need?',
+        followUpChips: [
+          { label: 'A compliance audit', query: 'Help me with a compliance audit for this member' },
+          { label: 'A handoff summary', query: 'Help me with a handoff summary for this member' },
+          { label: 'Help with closing this case', query: 'Help me with closing this case' },
+        ],
+      }])
+      return
+    }
+
     // Care plan summary - early return with interactive card (Jackson / Henry only)
     const isCarePlanReview = /review.*care plan|care plan.*review|review.*member.*care|review.*current.*care/i.test(resolvedText)
     if (isCarePlanReview && mockMemberId === 'AH58319473') {
@@ -373,12 +791,6 @@ export function HavenWindow({
         role: 'assistant' as const,
         content: `Here's a summary of ${firstName}'s current plan of care. You can update status, priority, and target dates inline.`,
         carePlanSummary: true,
-        followUpChips: [
-          { label: 'Help me make a SMART Goal for the member', query: 'Help me make a SMART goal for the member' },
-          { label: 'Print plan', query: 'Print plan', inlineRow: true },
-          { label: 'Schedule follow-up', query: 'Schedule follow-up', inlineRow: true },
-          { label: 'Complete all for me', query: 'Complete all for me', isComplete: true },
-        ],
       }])
       setMenuOpen(false)
       setSummarizeMenuOpen(false)
@@ -461,6 +873,93 @@ export function HavenWindow({
       return
     }
 
+    // Preset prompt card routing — intercept specific queries and return rich cards
+    const closeMenus = () => { setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false) }
+    const q = resolvedText.toLowerCase().trim()
+    const firstName = memberName.split(' ')[0]
+
+    type CardKey = 'preCallBriefCard' | 'medicationsCard' | 'contactHistoryCard' | 'ogiCard' | 'careGapsCard' | 'conditionsCard' | 'authorizationsCard' | 'assessmentsCard' | 'eligibilityCard' | 'riskLevelCard' | 'outstandingActivitiesCard'
+    type CardEntry = { key: CardKey; data: unknown; summary: string }
+
+    let cardEntry: CardEntry | null = null
+
+    if (/prepare.*call|pre.?call brief|first outreach|member call/i.test(q)) {
+      const data = getPreCallBriefCardData(firstName, mockMemberId ?? '')
+      setMessages(prev => [...prev, userMsg])
+      closeMenus()
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 400))
+      setLoading(false)
+      if (cancelledRef.current) return
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: `Here's a summary of what you might need for a first outreach call.`,
+        preCallBriefCard: data,
+        followUp: 'Would you like to see more?',
+        followUpChips: [
+          { label: 'Health history', query: `What are ${firstName}'s current conditions and diagnoses?`, inlineRow: true },
+          { label: 'New conditions', query: `What are ${firstName}'s new conditions and clinical changes?`, inlineRow: true },
+          { label: 'Care gaps', query: `Are there any care gaps for ${firstName}?`, inlineRow: true },
+          { label: 'Recent authorizations', query: `Show me ${firstName}'s authorization and claims history`, inlineRow: true },
+          { label: 'OGIs', query: `What are ${firstName}'s current OGIs?`, inlineRow: true },
+          { label: 'Claims, approvals & denials', query: `Show me ${firstName}'s authorization and claims history`, inlineRow: true },
+          { label: 'Preferences', query: `Show me ${firstName}'s last contact and interaction history`, inlineRow: true },
+          { label: 'Last member record update', query: `Show me ${firstName}'s last contact and interaction history`, inlineRow: true },
+        ],
+      }])
+      return
+    } else if (/medication|med list|current medication|meds/i.test(q) && !/allerg|prior auth/i.test(q)) {
+      const data = getMedicationsCardData(firstName, mockMemberId ?? '')
+      const active = data.medications.filter(m => m.isCurrent).length
+      cardEntry = { key: 'medicationsCard', data, summary: `Here are ${firstName}'s medications — ${active} active.` }
+    } else if (/last contact|contact.*history|interaction history|outreach history|when did we last|last call/i.test(q)) {
+      const data = getContactHistoryCardData(firstName, mockMemberId ?? '')
+      cardEntry = { key: 'contactHistoryCard', data, summary: `Here's ${firstName}'s contact and interaction history.` }
+    } else if (/\bogi\b|opportunity.*goal|goal.*intervention|current ogi|recommended ogi/i.test(q)) {
+      const data = getOGICardData(firstName, mockMemberId ?? '')
+      cardEntry = { key: 'ogiCard', data, summary: `Here are ${firstName}'s current and recommended OGIs.` }
+    } else if (/care gap|gaps in care|open gap|hedis|missing.*screening/i.test(q) && !/add.*care gap/i.test(q)) {
+      const data = getCareGapsCardData(firstName, mockMemberId ?? '')
+      const openCount = data.gaps.filter(g => g.opportunityStatus === 'Open').length
+      cardEntry = { key: 'careGapsCard', data, summary: `${firstName} has ${openCount} open care gap${openCount !== 1 ? 's' : ''} for the current measurement year.` }
+    } else if (/diagnos|condition|new condition|clinical change|problem list/i.test(q) && !/care plan/i.test(q)) {
+      const data = getConditionsCardData(firstName, mockMemberId ?? '')
+      cardEntry = { key: 'conditionsCard', data, summary: `Here are ${firstName}'s current diagnoses and clinical conditions.` }
+    } else if (/authorization|claim|visit history|encounter|service history/i.test(q) && !/prior auth/i.test(q)) {
+      const data = getAuthorizationsCardData(firstName, mockMemberId ?? '')
+      cardEntry = { key: 'authorizationsCard', data, summary: `Here's ${firstName}'s authorization and claims history.` }
+    } else if (/assessment|hra|health risk|ltss|phq|screening|script/i.test(q) && !/smart goal/i.test(q)) {
+      const data = getAssessmentsCardData(firstName, mockMemberId ?? '')
+      cardEntry = { key: 'assessmentsCard', data, summary: `Here are ${firstName}'s completed assessments.` }
+    } else if (/eligib|coverage|insurance|active coverage|current.*eligib/i.test(q)) {
+      const data = getEligibilityCardData(firstName, mockMemberId ?? '')
+      cardEntry = { key: 'eligibilityCard', data, summary: `Here's ${firstName}'s current eligibility and coverage.` }
+    } else if (/risk level|risk score|risk tier|risk stratif|current risk/i.test(q)) {
+      const data = getRiskLevelCardData(firstName, mockMemberId ?? '')
+      cardEntry = { key: 'riskLevelCard', data, summary: `Here's ${firstName}'s current risk level and stratification.` }
+    } else if (/outstanding activit|pending activit|activities.*due|what activities/i.test(q)) {
+      const data = getOutstandingActivitiesCardData(firstName, mockMemberId ?? '')
+      cardEntry = { key: 'outstandingActivitiesCard', data, summary: `Here are ${firstName}'s outstanding activities.` }
+    }
+
+    if (cardEntry) {
+      const { key, data, summary } = cardEntry
+      setMessages(prev => [...prev, userMsg])
+      closeMenus()
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 400))
+      setLoading(false)
+      if (cancelledRef.current) return
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: summary,
+        [key]: data,
+      }])
+      return
+    }
+
     // Mock path: show typing indicator briefly before resolving
     const guardrail = getGuardrailMessage(resolvedText)
     const replyContent = guardrail ?? getMockReply(resolvedText, memberName, mockMemberId)
@@ -483,56 +982,173 @@ export function HavenWindow({
     }])
   }, [loading, hasData, memberName, memberId, mockMemberId, onSend, messages])
 
+  /* ── Geometry ref — single source of truth during gestures ── */
+  // We keep a mutable ref that mirrors pos/size. During drag/resize we mutate ONLY
+  // the ref and write directly to the DOM — no setState, no React re-render mid-gesture.
+  // On mouseUp we commit to state so React re-renders with the final position.
+  const geo = useRef({ left: 0, top: 0, w: defaultWidth, h: defaultHeight })
+
+  // Sync geo ref whenever React state settles (mount / mouseUp)
+  useLayoutEffect(() => { geo.current.left = pos.left; geo.current.top = pos.top }, [pos])
+  useLayoutEffect(() => { geo.current.w = size.w; geo.current.h = size.h }, [size])
+
+  // Move-only: transform is compositor-only — zero layout, zero paint.
+  const applyPos = useCallback(() => {
+    const el = windowRef.current
+    if (!el) return
+    el.style.transform = `translate(${geo.current.left}px,${geo.current.top}px)`
+  }, [])
+
+  // Full geometry: also sets width/height (triggers layout — use only at rest or during resize).
+  const applyGeo = useCallback((minimized: boolean) => {
+    const el = windowRef.current
+    if (!el) return
+    el.style.transform = `translate(${geo.current.left}px,${geo.current.top}px)`
+    el.style.width     = `${geo.current.w}px`
+    el.style.height    = minimized ? '28px' : `${geo.current.h}px`
+  }, [])
+
+  // After every render, re-apply geo so React never clobbers our direct DOM writes
+  useLayoutEffect(() => { applyGeo(winState === 'minimized') })
+
+  /* Clamp window back into viewport whenever the browser is resized */
+  useEffect(() => {
+    const onResize = () => {
+      setPos(p => ({
+        left: Math.max(0, Math.min(window.innerWidth  - geo.current.w,  p.left)),
+        top:  Math.max(0, Math.min(window.innerHeight - 28, p.top)),
+      }))
+      setSize(s => ({
+        w: Math.min(s.w, window.innerWidth),
+        h: Math.min(s.h, window.innerHeight - 28),
+      }))
+    }
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
   /* ── Drag ── */
   const dragState = useRef<{ startX: number; startY: number; startLeft: number; startTop: number } | null>(null)
 
-  const onChromeMouseDown = useCallback((e: React.MouseEvent) => {
+  const onChromeMouseDown = useCallback((e: React.PointerEvent) => {
     if ((e.target as HTMLElement).closest('button')) return
     e.preventDefault()
-    dragState.current = { startX: e.clientX, startY: e.clientY, startLeft: pos.left, startTop: pos.top }
-  }, [pos])
+    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+    dragState.current = {
+      startX: e.clientX, startY: e.clientY,
+      startLeft: geo.current.left, startTop: geo.current.top,
+    }
+    document.body.style.userSelect = 'none'
+    document.body.style.cursor = 'grabbing'
+  }, [])
 
   useEffect(() => {
     const onMouseMove = (e: MouseEvent) => {
+      const d = dragState.current
+      if (!d || !windowRef.current) return
+      const maxLeft = window.innerWidth  - geo.current.w
+      const maxTop  = window.innerHeight - 28
+      geo.current.left = Math.max(0, Math.min(maxLeft, d.startLeft + (e.clientX - d.startX)))
+      geo.current.top  = Math.max(0, Math.min(maxTop,  d.startTop  + (e.clientY - d.startY)))
+      applyPos()
+    }
+    const onMouseUp = (e: MouseEvent) => {
       if (!dragState.current) return
-      const dx = e.clientX - dragState.current.startX
-      const dy = e.clientY - dragState.current.startY
+      const d = dragState.current
+      dragState.current = null
+      document.body.style.userSelect = ''
+      document.body.style.cursor = ''
+      const maxLeft = window.innerWidth  - geo.current.w
+      const maxTop  = window.innerHeight - 28
       setPos({
-        left: Math.max(0, Math.min(window.innerWidth - size.w, dragState.current.startLeft + dx)),
-        top: Math.max(0, Math.min(window.innerHeight - 28, dragState.current.startTop + dy)),
+        left: Math.max(0, Math.min(maxLeft, d.startLeft + (e.clientX - d.startX))),
+        top:  Math.max(0, Math.min(maxTop,  d.startTop  + (e.clientY - d.startY))),
       })
     }
-    const onMouseUp = () => { dragState.current = null }
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-    return () => { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp) }
-  }, [size.w])
+    document.addEventListener('pointermove', onMouseMove)
+    document.addEventListener('pointerup',   onMouseUp)
+    return () => {
+      document.removeEventListener('pointermove', onMouseMove)
+      document.removeEventListener('pointerup',   onMouseUp)
+    }
+  }, [applyPos])
 
   /* ── Resize ── */
-  const resizeState = useRef<{ dir: ResizeDir; startX: number; startY: number; startLeft: number; startTop: number; startW: number; startH: number } | null>(null)
+  const resizeState = useRef<{
+    dir: ResizeDir
+    startX: number; startY: number
+    startLeft: number; startTop: number
+    startW: number; startH: number
+  } | null>(null)
 
-  const onResizeMouseDown = useCallback((dir: ResizeDir) => (e: React.MouseEvent) => {
+  const onResizeMouseDown = useCallback((dir: ResizeDir) => (e: React.PointerEvent) => {
     e.preventDefault(); e.stopPropagation()
-    resizeState.current = { dir, startX: e.clientX, startY: e.clientY, startLeft: pos.left, startTop: pos.top, startW: size.w, startH: size.h }
-  }, [pos, size])
+    ;(e.target as HTMLElement).setPointerCapture(e.pointerId)
+    resizeState.current = {
+      dir,
+      startX: e.clientX, startY: e.clientY,
+      startLeft: geo.current.left, startTop: geo.current.top,
+      startW: geo.current.w,       startH: geo.current.h,
+    }
+    document.body.style.userSelect = 'none'
+  }, [])
 
   useEffect(() => {
-    const onMouseMove = (e: MouseEvent) => {
+    const calcResize = (clientX: number, clientY: number) => {
       const r = resizeState.current
-      if (!r) return
-      const dx = e.clientX - r.startX
-      const dy = e.clientY - r.startY
-      let { startLeft: newLeft, startTop: newTop, startW: newW, startH: newH } = r
-      if (r.dir.includes('e')) newW = Math.max(MIN_W, r.startW + dx)
-      if (r.dir.includes('w')) { newW = Math.max(MIN_W, r.startW - dx); newLeft = r.startLeft + (r.startW - newW) }
-      if (r.dir.includes('s')) newH = Math.max(MIN_H, r.startH + dy)
-      if (r.dir.includes('n')) { newH = Math.max(MIN_H, r.startH - dy); newTop = r.startTop + (r.startH - newH) }
-      setSize({ w: newW, h: newH }); setPos({ left: newLeft, top: newTop })
+      if (!r) return null
+      const dx = clientX - r.startX
+      const dy = clientY - r.startY
+      let newLeft = r.startLeft, newTop = r.startTop, newW = r.startW, newH = r.startH
+
+      if (r.dir.includes('e')) {
+        newW = Math.max(MIN_W, Math.min(r.startW + dx, window.innerWidth - r.startLeft))
+      }
+      if (r.dir.includes('s')) {
+        newH = Math.max(MIN_H, Math.min(r.startH + dy, window.innerHeight - 28 - r.startTop))
+      }
+      if (r.dir.includes('w')) {
+        const rawW = r.startW - dx
+        newW    = Math.max(MIN_W, rawW)
+        newLeft = Math.max(0, r.startLeft + r.startW - newW)
+        newW    = r.startLeft + r.startW - newLeft   // recompute after clamping left
+      }
+      if (r.dir.includes('n')) {
+        const rawH = r.startH - dy
+        newH    = Math.max(MIN_H, rawH)
+        newTop  = Math.max(0, r.startTop + r.startH - newH)
+        newH    = r.startTop + r.startH - newTop     // recompute after clamping top
+      }
+      return { newLeft, newTop, newW, newH }
     }
-    const onMouseUp = () => { resizeState.current = null }
-    document.addEventListener('mousemove', onMouseMove)
-    document.addEventListener('mouseup', onMouseUp)
-    return () => { document.removeEventListener('mousemove', onMouseMove); document.removeEventListener('mouseup', onMouseUp) }
+
+    const onMouseMove = (e: MouseEvent) => {
+      const v = calcResize(e.clientX, e.clientY)
+      if (!v || !windowRef.current) return
+      geo.current.left = v.newLeft
+      geo.current.top  = v.newTop
+      geo.current.w    = v.newW
+      geo.current.h    = v.newH
+      const el = windowRef.current
+      el.style.transform = `translate(${v.newLeft}px,${v.newTop}px)`
+      el.style.width     = `${v.newW}px`
+      el.style.height    = `${v.newH}px`
+    }
+    const onMouseUp = (e: MouseEvent) => {
+      const v = calcResize(e.clientX, e.clientY)
+      resizeState.current = null
+      document.body.style.userSelect = ''
+      if (v) {
+        setPos({ left: v.newLeft, top: v.newTop })
+        setSize({ w: v.newW, h: v.newH })
+      }
+    }
+    document.addEventListener('pointermove', onMouseMove)
+    document.addEventListener('pointerup',   onMouseUp)
+    return () => {
+      document.removeEventListener('pointermove', onMouseMove)
+      document.removeEventListener('pointerup',   onMouseUp)
+    }
   }, [])
 
   /* ── Window controls ── */
@@ -550,7 +1166,6 @@ export function HavenWindow({
 
   const openWindow = useCallback(() => {
     setPos({ left: window.innerWidth - defaultRight - defaultWidth, top: window.innerHeight - defaultBottom - defaultHeight })
-    setPosReady(true)
     setWinState('open')
   }, [defaultRight, defaultWidth, defaultBottom, defaultHeight])
 
@@ -563,9 +1178,7 @@ export function HavenWindow({
   }, [])
 
   // Bottom edge of the Haven window (px from viewport top) - used to align MemberChatWindow
-  const havenBottomY = posReady
-    ? pos.top + size.h
-    : window.innerHeight - defaultBottom
+  const havenBottomY = pos.top + size.h
 
   const memberChat = !isHome && memberChatOpen ? (
     <MemberChatWindow
@@ -658,8 +1271,8 @@ export function HavenWindow({
       age={age}
       gender={gender}
       dob={dob}
-      havenLeft={posReady ? pos.left : window.innerWidth - defaultRight - defaultWidth}
-      havenTop={posReady ? pos.top : window.innerHeight - defaultBottom - defaultHeight}
+      havenLeft={pos.left}
+      havenTop={pos.top}
     />
   ) : null
 
@@ -674,10 +1287,9 @@ export function HavenWindow({
   }
 
   const isMinimized = winState === 'minimized'
+  // Geometry (left/top/width/height) is owned exclusively by applyGeo() via useLayoutEffect.
+  // windowStyle only carries non-geometry properties so React never clobbers our DOM writes.
   const windowStyle: React.CSSProperties = {
-    ...(posReady
-      ? { left: pos.left, top: pos.top, width: size.w, height: isMinimized ? 28 : size.h }
-      : { right: defaultRight, bottom: defaultBottom, width: size.w, height: isMinimized ? 28 : size.h }),
     ...(sukiOpen ? { zIndex: 800, borderTopLeftRadius: 0, borderBottomLeftRadius: 0, transition: 'border-radius 0.18s ease' } : { transition: 'border-radius 0.18s ease' }),
   }
 
@@ -688,23 +1300,23 @@ export function HavenWindow({
     {memberChat}
     {fab}
     {sukiNode}
-    <div ref={windowRef} className={styles.window} style={windowStyle} role="dialog" aria-label="Haven AI assistant" aria-modal="false">
+    <div ref={windowRef} className={styles.window} style={{ ...windowStyle, '--font-family-base': previewFont ?? FONT_MAP[settings.fontStyle] } as React.CSSProperties} role="dialog" aria-label="Haven AI assistant" aria-modal="false">
       {/* Resize handles */}
       {!isMinimized && (
         <>
-          <div className={styles.resizeN}  onMouseDown={onResizeMouseDown('n')}  />
-          <div className={styles.resizeS}  onMouseDown={onResizeMouseDown('s')}  />
-          <div className={styles.resizeE}  onMouseDown={onResizeMouseDown('e')}  />
-          <div className={styles.resizeW}  onMouseDown={onResizeMouseDown('w')}  />
-          <div className={styles.resizeNE} onMouseDown={onResizeMouseDown('ne')} />
-          <div className={styles.resizeNW} onMouseDown={onResizeMouseDown('nw')} />
-          <div className={styles.resizeSE} onMouseDown={onResizeMouseDown('se')} />
-          <div className={styles.resizeSW} onMouseDown={onResizeMouseDown('sw')} />
+          <div className={styles.resizeN}  onPointerDown={onResizeMouseDown('n')}  />
+          <div className={styles.resizeS}  onPointerDown={onResizeMouseDown('s')}  />
+          <div className={styles.resizeE}  onPointerDown={onResizeMouseDown('e')}  />
+          <div className={styles.resizeW}  onPointerDown={onResizeMouseDown('w')}  />
+          <div className={styles.resizeNE} onPointerDown={onResizeMouseDown('ne')} />
+          <div className={styles.resizeNW} onPointerDown={onResizeMouseDown('nw')} />
+          <div className={styles.resizeSE} onPointerDown={onResizeMouseDown('se')} />
+          <div className={styles.resizeSW} onPointerDown={onResizeMouseDown('sw')} />
         </>
       )}
 
       {/* Chrome bar */}
-      <div className={styles.chrome} onMouseDown={onChromeMouseDown}>
+      <div className={styles.chrome} onPointerDown={onChromeMouseDown}>
         <div className={styles.trafficLights}>
           <button className={`${styles.trafficBtn} ${styles.btnClose}`}  onClick={handleClose}    type="button" aria-label="Close"    title="Close"    />
           <button className={`${styles.trafficBtn} ${styles.btnMin}`}    onClick={handleMinimize} type="button" aria-label={isMinimized ? 'Restore' : 'Minimize'} title={isMinimized ? 'Restore' : 'Minimize'} />
@@ -727,7 +1339,20 @@ export function HavenWindow({
                 onClick={() => { setMessages([]); setLearnMoreOpen(false) }}
                 aria-label="Back"
               >
-                <Icon name="ArrowBack" size="sm" color="action" />
+                <Icon name="ArrowBack" size="sm" sx={{ color: '#1B456F' }} />
+                Back
+              </button>
+            )}
+
+            {/* Back button - from preset prompt */}
+            {fromPresets && !learnMoreOpen && (
+              <button
+                type="button"
+                className={panelStyles.backBtn}
+                onClick={() => { setMessages([]); setFromPresets(false); setPresetsOpen(true) }}
+                aria-label="Back to prompts"
+              >
+                <Icon name="ArrowBack" size="sm" sx={{ color: '#1B456F' }} />
                 Back
               </button>
             )}
@@ -930,7 +1555,7 @@ export function HavenWindow({
                   <div className={panelStyles.welcomeWrap}>
                     {isHome
                       ? <HomeWelcome onPrompt={sendMessage} onPresetsClick={() => setPresetsOpen(true)} day={day} />
-                      : <ChatWelcome onMemberDetails={() => setMenuOpen(true)} onSummarizeMenu={() => setSummarizeMenuOpen(true)} />
+                      : <ChatWelcome onMemberDetails={() => setMenuOpen(true)} onSummarizeMenu={() => setSummarizeMenuOpen(true)} language={settings.language} />
                     }
                   </div>
                 )
@@ -940,9 +1565,9 @@ export function HavenWindow({
             {/* Member detail menu - floats above input bar (member view only) */}
             {!isHome && menuOpen && !hasMessages && (
               <div className={panelStyles.menuOverlay}>
-                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setMenuOpen(false)} aria-label="Back">
-                  <Icon name="ArrowBack" size="sm" color="action" />
-                  Back
+                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setMenuOpen(false)} aria-label="Close">
+                  <Icon name="Close" size="sm" color="action" />
+                  Close
                 </button>
                 <div className={panelStyles.menuCard}>
                   <MemberDetailMenu onClose={() => setMenuOpen(false)} onSelect={sendMessage} memberId={memberId} />
@@ -953,9 +1578,9 @@ export function HavenWindow({
             {/* Summarize menu - floats above input bar (member view only) */}
             {!isHome && summarizeMenuOpen && !hasMessages && (
               <div className={panelStyles.menuOverlay}>
-                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setSummarizeMenuOpen(false)} aria-label="Back">
-                  <Icon name="ArrowBack" size="sm" color="action" />
-                  Back
+                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setSummarizeMenuOpen(false)} aria-label="Close">
+                  <Icon name="Close" size="sm" color="action" />
+                  Close
                 </button>
                 <div className={panelStyles.menuCard}>
                   <SummarizeMenu onClose={() => setSummarizeMenuOpen(false)} onSelect={sendMessage} />
@@ -966,9 +1591,9 @@ export function HavenWindow({
             {/* Compliance menu - floats above input bar (member view only) */}
             {!isHome && complianceMenuOpen && !hasMessages && (
               <div className={panelStyles.menuOverlay}>
-                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setComplianceMenuOpen(false)} aria-label="Back">
-                  <Icon name="ArrowBack" size="sm" color="action" />
-                  Back
+                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setComplianceMenuOpen(false)} aria-label="Close">
+                  <Icon name="Close" size="sm" color="action" />
+                  Close
                 </button>
                 <div className={panelStyles.menuCard}>
                   <ComplianceMenu onClose={() => setComplianceMenuOpen(false)} onSelect={sendMessage} memberId={memberId} />
@@ -979,9 +1604,9 @@ export function HavenWindow({
             {/* Document menu - floats above input bar (member view only) */}
             {!isHome && documentMenuOpen && !hasMessages && (
               <div className={panelStyles.menuOverlay}>
-                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setDocumentMenuOpen(false)} aria-label="Back">
-                  <Icon name="ArrowBack" size="sm" color="action" />
-                  Back
+                <button type="button" className={panelStyles.menuBackBtn} onClick={() => setDocumentMenuOpen(false)} aria-label="Close">
+                  <Icon name="Close" size="sm" color="action" />
+                  Close
                 </button>
                 <div className={panelStyles.menuCard}>
                   <DocumentMenu onClose={() => setDocumentMenuOpen(false)} onSelect={sendMessage} />
@@ -991,7 +1616,7 @@ export function HavenWindow({
 
             {/* Input + disclaimer */}
             <div className={panelStyles.bottom}>
-              <AskHavenInput onSubmit={sendMessage} />
+              <AskHavenInput onSubmit={sendMessage} language={settings.language} />
               <p className={panelStyles.disclaimer}>
                 Once closed, a chat can't be continued.{' '}
                 Check your responses for accuracy.{' '}
@@ -1006,9 +1631,10 @@ export function HavenWindow({
           {presetsOpen && (
             <PresetPromptsPanel
               onClose={() => setPresetsOpen(false)}
-              onSelectPrompt={(text) => { sendMessage(text); setPresetsOpen(false) }}
+              onSelectPrompt={(text) => { sendMessage(text, true); setPresetsOpen(false); setFromPresets(true) }}
               memberName={memberName}
               memberId={memberId}
+              language={settings.language}
             />
           )}
 
@@ -1022,12 +1648,26 @@ export function HavenWindow({
                 currentSessionId.current = `session-${Date.now()}`
                 setMessages([])
                 setLearnMoreOpen(false)
+                setFromPresets(false)
                 setSkipWelcome(true)
               }}
               onDelete={(id) => { deleteSession(id); refreshHistory() }}
               onToggleFavorite={(id) => { toggleFavorite(id); refreshHistory() }}
               onClearHistory={() => { clearAllForMember(memberId); refreshHistory() }}
               onLearnMore={handleLearnMore}
+              onOpenSettings={() => { setHistoryOpen(false); setSettingsOpen(true) }}
+              language={settings.language}
+            />
+          )}
+
+          {/* Settings - full page overlay */}
+          {settingsOpen && (
+            <SettingsPanel
+              settings={settings}
+              onUpdate={(patch) => { updateSettings(patch); if (patch.fontStyle) setPreviewFont(FONT_MAP[patch.fontStyle]) }}
+              onBack={() => { setSettingsOpen(false); setPreviewFont(FONT_MAP[settings.fontStyle]) }}
+              onFontPreview={(fontStyle) => setPreviewFont(FONT_MAP[fontStyle])}
+              language={settings.language}
             />
           )}
         </div>

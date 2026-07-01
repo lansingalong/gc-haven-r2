@@ -12,6 +12,17 @@ import { SmartGoalCard, type SmartGoalData, type SmartGoalAddedPayload } from '.
 import { UracChecklistCard } from './UracChecklistCard'
 import { CarePlanSummaryCard } from './CarePlanSummaryCard'
 import { LastUpdateCard, type LastUpdateData } from './LastUpdateCard'
+import { MedicationsCard, type MedicationsCardData } from './MedicationsCard'
+import { ContactHistoryCard, type ContactHistoryCardData } from './ContactHistoryCard'
+import { OGICard, type OGICardData } from './OGICard'
+import { CareGapsCard, type CareGapsCardData } from './CareGapsCard'
+import { ConditionsCard, type ConditionsCardData } from './ConditionsCard'
+import { AuthorizationsCard, type AuthorizationsCardData } from './AuthorizationsCard'
+import { AssessmentsCard, type AssessmentsCardData } from './AssessmentsCard'
+import { EligibilityCard, type EligibilityCardData } from './EligibilityCard'
+import { RiskLevelCard, type RiskLevelCardData } from './RiskLevelCard'
+import { OutstandingActivitiesCard, type OutstandingActivitiesCardData } from './OutstandingActivitiesCard'
+import { PreCallBriefCard, type PreCallBriefCardData } from './PreCallBriefCard'
 
 export interface FollowUpChip {
   label: string
@@ -33,6 +44,17 @@ export interface Message {
   uracChecklist?: true
   carePlanSummary?: true
   lastUpdate?: LastUpdateData
+  medicationsCard?: MedicationsCardData
+  contactHistoryCard?: ContactHistoryCardData
+  ogiCard?: OGICardData
+  careGapsCard?: CareGapsCardData
+  conditionsCard?: ConditionsCardData
+  authorizationsCard?: AuthorizationsCardData
+  assessmentsCard?: AssessmentsCardData
+  eligibilityCard?: EligibilityCardData
+  riskLevelCard?: RiskLevelCardData
+  outstandingActivitiesCard?: OutstandingActivitiesCardData
+  preCallBriefCard?: PreCallBriefCardData
 }
 
 export interface ChatMessagesProps {
@@ -170,15 +192,30 @@ function AssistantMessage({
           onNavigateActivity={onNavigateActivity}
         />
       )}
-      {msg.followUp && <p className={styles.followUpText}>{msg.followUp}</p>}
+      {msg.medicationsCard && <MedicationsCard data={msg.medicationsCard} />}
+      {msg.contactHistoryCard && <ContactHistoryCard data={msg.contactHistoryCard} />}
+      {msg.ogiCard && <OGICard data={msg.ogiCard} />}
+      {msg.careGapsCard && <CareGapsCard data={msg.careGapsCard} />}
+      {msg.conditionsCard && <ConditionsCard data={msg.conditionsCard} />}
+      {msg.authorizationsCard && <AuthorizationsCard data={msg.authorizationsCard} />}
+      {msg.assessmentsCard && <AssessmentsCard data={msg.assessmentsCard} />}
+      {msg.eligibilityCard && <EligibilityCard data={msg.eligibilityCard} />}
+      {msg.riskLevelCard && <RiskLevelCard data={msg.riskLevelCard} />}
+      {msg.outstandingActivitiesCard && <OutstandingActivitiesCard data={msg.outstandingActivitiesCard} />}
+      {msg.preCallBriefCard && <PreCallBriefCard data={msg.preCallBriefCard} />}
+      {msg.followUp && (!msg.followUpChips || msg.followUpChips.length === 0) && (
+        <p className={styles.followUpText}>{msg.followUp}</p>
+      )}
       {msg.followUpChips && msg.followUpChips.length > 0 && (
         <div className={styles.followUpChips}>
+          {msg.followUp && <p className={styles.followUpLabel}>{msg.followUp}</p>}
           {(() => {
             const rows: JSX.Element[] = []
             let i = 0
             while (i < msg.followUpChips!.length) {
               const chip = msg.followUpChips![i]
               if (chip.inlineRow) {
+                // Collect the run of inlineRow chips — rendered flat, CSS flex-wrap handles layout
                 const group = [chip]
                 let j = i + 1
                 while (j < msg.followUpChips!.length && msg.followUpChips![j].inlineRow) {

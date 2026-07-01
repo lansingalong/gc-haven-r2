@@ -2,8 +2,8 @@ import styles from './MemberDetailMenu.module.css'
 
 const PROMPTS = [
   'Prepare me for a member call',
-  "Review member's current care plan",
-  'Show me the last update I did for the member',
+  "Catch me up on member's care",
+  'Help me with admin for this member',
 ]
 
 export interface SummarizeMenuProps {
