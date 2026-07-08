@@ -33,7 +33,7 @@ import {
   lisaMemberDetail,
 } from '@/mocks/lisaThompson'
 import { mockMemberDetail } from '@/mocks/memberDetail'
-import { HomeWelcome } from './HomeWelcome'
+import { HomeWelcome, MariaTodaysTasks } from './HomeWelcome'
 import { MemberChatWindow } from './MemberChatWindow'
 import { SukiWindow, type Alert as SukiAlert } from './SukiWindow'
 import { ChatHistoryDrawer } from './ChatHistoryDrawer'
@@ -1555,7 +1555,9 @@ export function HavenWindow({
                   <div className={panelStyles.welcomeWrap}>
                     {isHome
                       ? <HomeWelcome onPrompt={sendMessage} onPresetsClick={() => setPresetsOpen(true)} day={day} />
-                      : <ChatWelcome onMemberDetails={() => setMenuOpen(true)} onSummarizeMenu={() => setSummarizeMenuOpen(true)} language={settings.language} />
+                      : mockMemberId === 'AH0000023'
+                        ? <MariaTodaysTasks onPrompt={sendMessage} />
+                        : <ChatWelcome onMemberDetails={() => setMenuOpen(true)} onSummarizeMenu={() => setSummarizeMenuOpen(true)} language={settings.language} />
                     }
                   </div>
                 )

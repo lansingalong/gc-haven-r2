@@ -32,9 +32,10 @@ const ALERTS: Alert[] = [
   { id: 'sarah-hra', label: 'Assessment Overdue', member: 'Sarah Williams', memberId: 'sarah-williams', detail: 'HRA not completed - due 6/15', severity: 'warning', action: 'Outreach with Sage', secondAction: 'Add activity to call Sarah to take assessment', note: "It looks like you've had 2 outreach attempts logged with this member to take their HRA. Sage can call the member on your behalf and tell you when the member picks up.", automate: true },
 ]
 
+const MARIA_ALERTS = ALERTS.filter(a => a.memberId === 'maria-rivera')
+
 const DAY2_TASKS = [
-  { icon: 'Phone', member: 'Maria Rivera', text: 'Follow-up call to review discharge plan', due: 'Today' },
-  { icon: 'Description', member: 'Maria Rivera', text: 'Complete URAC documentation', due: 'Due in 1 week' },
+  { icon: 'Description', text: 'Complete URAC documentation', due: 'Due in 1 week' },
 ]
 
 const DAY2_NOTES = [
@@ -133,7 +134,6 @@ function Day0({ onPrompt }: { onPrompt: (text: string) => void }) {
             <div key={t.text} className={styles.actionRowStatic}>
               <Icon name={t.icon as never} size="sm" color="action" />
               <div className={styles.taskRowContent}>
-                <span className={styles.taskRowMember}>{t.member}</span>
                 <span className={styles.actionText}>{t.text}</span>
               </div>
               <span className={`${styles.dueBadge} ${t.due === 'Today' ? styles.dueToday : ''}`}>{t.due}</span>
@@ -192,7 +192,7 @@ function Day0({ onPrompt }: { onPrompt: (text: string) => void }) {
   )
 }
 
-function Day1({ onPrompt }: { onPrompt: (text: string) => void }) {
+function Day1({ onPrompt, alerts = ALERTS }: { onPrompt: (text: string) => void; alerts?: Alert[] }) {
   const [checked, setChecked] = useState<Set<string>>(new Set())
   const [automated, setAutomated] = useState<Set<string>>(new Set())
   const [running, setRunning] = useState<Set<string>>(new Set())
@@ -210,7 +210,7 @@ function Day1({ onPrompt }: { onPrompt: (text: string) => void }) {
   }
 
   function handleAutomate() {
-    const queue = ALERTS.filter(a => a.automate && checked.has(a.id))
+    const queue = alerts.filter(a => a.automate && checked.has(a.id))
     if (queue.length === 0) return
     setChecked(prev => { const next = new Set(prev); queue.forEach(a => next.delete(a.id)); return next })
     setRunning(new Set(queue.map(a => a.id)))
@@ -230,19 +230,19 @@ function Day1({ onPrompt }: { onPrompt: (text: string) => void }) {
     })
   }
 
-  const uncheckedAlerts = ALERTS.filter(a => !checked.has(a.id) && !automated.has(a.id))
+  const uncheckedAlerts = alerts.filter(a => !checked.has(a.id) && !automated.has(a.id))
   function addAll() { setChecked(new Set(uncheckedAlerts.map(a => a.id))) }
 
-  const automateQueue = ALERTS.filter(a => a.automate && checked.has(a.id))
-  const reviewQueue = ALERTS.filter(a => !a.automate && checked.has(a.id))
-  const automatedItems = ALERTS.filter(a => automated.has(a.id))
+  const automateQueue = alerts.filter(a => a.automate && checked.has(a.id))
+  const reviewQueue = alerts.filter(a => !a.automate && checked.has(a.id))
+  const automatedItems = alerts.filter(a => automated.has(a.id))
 
   return (
     <>
     <div className={styles.cards}>
       <Card icon="NotificationImportant" iconColor="error" title="Needs your attention">
-        {Array.from(new Set(ALERTS.map(a => a.member))).map(member => {
-          const memberAlerts = ALERTS.filter(a => a.member === member)
+        {Array.from(new Set(alerts.map(a => a.member))).map(member => {
+          const memberAlerts = alerts.filter(a => a.member === member)
           return (
             <div key={member} className={styles.memberGroup}>
               <div className={styles.memberGroupHeader}>
@@ -331,7 +331,7 @@ function Day1({ onPrompt }: { onPrompt: (text: string) => void }) {
               )}
             </div>
             <div className={styles.queueItems}>
-              {[...automateQueue, ...ALERTS.filter(a => running.has(a.id) || (completed.has(a.id) && !automated.has(a.id)))].map(a => {
+              {[...automateQueue, ...alerts.filter(a => running.has(a.id) || (completed.has(a.id) && !automated.has(a.id)))].map(a => {
                 const isRunning = running.has(a.id)
                 const isDone = completed.has(a.id)
                 return (
@@ -426,30 +426,262 @@ function Day1({ onPrompt }: { onPrompt: (text: string) => void }) {
   )
 }
 
-function Day2({ onPrompt }: { onPrompt: (text: string) => void }) {
+function Day2(_: { onPrompt: (text: string) => void }) {
+  const [checked, setChecked] = useState<Set<string>>(new Set())
+  const [automated, setAutomated] = useState<Set<string>>(new Set())
+  const [running, setRunning] = useState<Set<string>>(new Set())
+  const [completed, setCompleted] = useState<Set<string>>(new Set())
+  const [allDone, setAllDone] = useState(false)
+
+  function toggle(id: string) {
+    setChecked(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
+  }
+
+  function handleAutomate() {
+    const queue = MARIA_ALERTS.filter(a => a.automate && checked.has(a.id))
+    if (queue.length === 0) return
+    setChecked(prev => { const next = new Set(prev); queue.forEach(a => next.delete(a.id)); return next })
+    setRunning(new Set(queue.map(a => a.id)))
+    setCompleted(new Set())
+    setAllDone(false)
+    queue.forEach((a, i) => {
+      setTimeout(() => {
+        setRunning(prev => { const next = new Set(prev); next.delete(a.id); return next })
+        setCompleted(prev => { const next = new Set(prev); next.add(a.id); return next })
+        if (i === queue.length - 1) {
+          setTimeout(() => {
+            setAllDone(true)
+            setAutomated(prev => { const next = new Set(prev); queue.forEach(q => next.add(q.id)); return next })
+          }, 400)
+        }
+      }, (i + 1) * 1200)
+    })
+  }
+
+  const uncheckedAlerts = MARIA_ALERTS.filter(a => !checked.has(a.id) && !automated.has(a.id))
+  const automateQueue = MARIA_ALERTS.filter(a => a.automate && checked.has(a.id))
+  const reviewQueue = MARIA_ALERTS.filter(a => !a.automate && checked.has(a.id))
+  const automatedItems = MARIA_ALERTS.filter(a => automated.has(a.id))
+
   return (
     <div className={styles.cards}>
       <Card icon="TaskAlt" iconColor="primary" title="Today's Tasks">
+        {MARIA_ALERTS.map(a => {
+          const isChecked = checked.has(a.id)
+          const isDone = automated.has(a.id)
+          return (
+            <div key={a.id} className={`${styles.alertItem} ${isDone ? styles.alertItemDone : ''}`}>
+              <div className={styles.alertRow}>
+                <span className={`${styles.alertDot} ${styles[a.severity]}`} aria-hidden="true" />
+                <span className={styles.actionText}>
+                  <span className={styles.alertLabel}>{a.label}</span>
+                  <span className={styles.alertDetail}> - {a.detail}</span>
+                </span>
+              </div>
+              <button
+                className={`${styles.alertAction} ${isChecked ? styles.alertActionChecked : ''}`}
+                type="button"
+                onClick={() => toggle(a.id)}
+                aria-pressed={isChecked}
+                disabled={isDone}
+              >
+                <Icon name={isDone || isChecked ? 'CheckBox' : 'CheckBoxOutlineBlank'} size="sm" color={isDone || isChecked ? 'primary' : 'action'} />
+                {a.action}
+              </button>
+              {a.id === 'maria-gap' && (
+                <span className={styles.noteMeta} style={{ paddingLeft: '24px' }}>Last reconciliation: Jun 8, 2026</span>
+              )}
+            </div>
+          )
+        })}
+
         {DAY2_TASKS.map(t => (
           <div key={t.text} className={styles.actionRowStatic}>
             <Icon name={t.icon as never} size="sm" color="action" />
             <div className={styles.taskRowContent}>
-              <span className={styles.taskRowMember}>{t.member}</span>
               <span className={styles.actionText}>{t.text}</span>
             </div>
             <span className={`${styles.dueBadge} ${t.due === 'Today' ? styles.dueToday : ''}`}>{t.due}</span>
           </div>
         ))}
 
-        <div className={styles.actionRowStatic}>
-          <Icon name="AutoAwesome" size="sm" color="action" />
-          <div className={styles.taskRowContent}>
-            <span className={styles.taskRowMember}>Sarah Williams</span>
-            <span className={styles.actionText}>Sage successfully called member. <button type="button" className={styles.inlineLink} onClick={() => onPrompt('Show me Sarah Williams assessment answers and insights from the Sage call')}>Review assessment answers and insights</button></span>
+        {uncheckedAlerts.length > 0 && (
+          <div className={styles.addAllRow}>
+            <button className={styles.addAllBtn} type="button" onClick={() => setChecked(new Set(uncheckedAlerts.map(a => a.id)))}>Add all</button>
           </div>
-          <span className={`${styles.dueBadge} ${styles.dueToday}`}>Today</span>
-        </div>
+        )}
+
+        {(automateQueue.length > 0 || running.size > 0 || completed.size > 0) && !allDone && (
+          <div className={styles.queueSection}>
+            <div className={styles.queueHeader}>
+              <Icon name="AutoAwesome" size="sm" color="primary" />
+              <span className={styles.queueTitle}>Tasks ({automateQueue.length + running.size + completed.size})</span>
+              {automateQueue.length > 0 && running.size === 0 && (
+                <button className={styles.automateAllBtn} type="button" onClick={handleAutomate}>
+                  <Icon name="PlayArrow" size="sm" color="inverse" />
+                  Run Tasks
+                </button>
+              )}
+            </div>
+            <div className={styles.queueItems}>
+              {[...automateQueue, ...MARIA_ALERTS.filter(a => running.has(a.id) || (completed.has(a.id) && !automated.has(a.id)))].map(a => {
+                const isRunning = running.has(a.id)
+                const isDone = completed.has(a.id)
+                return (
+                  <div key={a.id} className={`${styles.queueItem} ${isDone ? styles.queueItemDone : ''}`}>
+                    {isRunning ? (
+                      <span className={styles.queueItemSpinner} aria-label="Running" />
+                    ) : isDone ? (
+                      <Icon name="CheckCircle" size="sm" color="primary" />
+                    ) : (
+                      <button className={styles.queueItemCheck} type="button" onClick={() => toggle(a.id)} aria-label={`Remove ${a.action} from task list`}>
+                        <Icon name="CheckBox" size="sm" color="primary" />
+                      </button>
+                    )}
+                    <div className={styles.queueItemText}>
+                      <span className={`${styles.queueAction} ${isRunning ? styles.queueActionRunning : ''}`}>{a.action}</span>
+                    </div>
+                  </div>
+                )
+              })}
+            </div>
+          </div>
+        )}
+
+        {allDone && (
+          <div className={styles.allDoneBanner}>
+            <Icon name="CheckCircle" size="sm" color="primary" />
+            <span>Complete!</span>
+          </div>
+        )}
+
+        {reviewQueue.length > 0 && (
+          <div className={styles.queueSection}>
+            <div className={`${styles.queueHeader} ${styles.queueHeaderReview}`}>
+              <Icon name="PersonSearch" size="sm" color="action" />
+              <span className={styles.queueTitle}>Requires your review ({reviewQueue.length})</span>
+            </div>
+            <div className={styles.queueItems}>
+              {reviewQueue.map(a => (
+                <div key={a.id} className={styles.queueItem}>
+                  <button className={styles.queueItemCheck} type="button" onClick={() => toggle(a.id)} aria-label={`Remove ${a.action} from review list`}>
+                    <Icon name="CheckBox" size="sm" color="primary" />
+                  </button>
+                  <div className={styles.queueItemText}>
+                    {a.medicationLink ? (
+                      <button className={styles.medicationLink} type="button" onClick={() => navigateToMedications(a.memberId)}>
+                        {a.action}
+                        <Icon name="OpenInNew" size="sm" color="primary" />
+                      </button>
+                    ) : (
+                      <span className={styles.queueAction}>{a.action}</span>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
+        {automatedItems.length > 0 && (
+          <div className={styles.automatedBanner}>
+            <Icon name="CheckCircle" size="sm" color="primary" />
+            <span>{automatedItems.length} task{automatedItems.length > 1 ? 's' : ''} being handled by Haven</span>
+          </div>
+        )}
       </Card>
+    </div>
+  )
+}
+
+const MARIA_INSIGHTS = [
+  {
+    id: 'i-1',
+    icon: 'MonitorHeart',
+    domain: 'Cardiac',
+    status: 'High risk',
+    statusColor: 'error' as const,
+    summary: 'ER visit 6/9, +6 lb in 4 days. Discharged on Furosemide 40mg — new medication.',
+    reason: 'ER discharge summary · Jun 9, 2026',
+  },
+  {
+    id: 'i-3',
+    icon: 'Bloodtype',
+    domain: 'Metabolic',
+    status: 'Suboptimal',
+    statusColor: 'warning' as const,
+    summary: 'A1C 8.2% (Mar 2026). Dietary adherence barriers. No endocrinology referral on file.',
+    reason: 'Lab result · Mar 14, 2026',
+  },
+  {
+    id: 'i-4',
+    icon: 'Psychology',
+    domain: 'Behavioral',
+    status: 'Flagged',
+    statusColor: 'secondary' as const,
+    summary: 'PHQ-9: 10. Widowed Oct 2024, social isolation. Declined BH referral in April.',
+    reason: 'Care manager note · Apr 22, 2026',
+  },
+  {
+    id: 'i-5',
+    icon: 'Home',
+    domain: 'SDOH',
+    status: 'Active',
+    statusColor: 'info' as const,
+    summary: 'Lives alone. 2 missed PCP visits this year. Relies on Medicaid transport.',
+    reason: 'HRA · Feb 3, 2026',
+  },
+]
+
+const INSIGHT_ACCENT: Record<string, string> = {
+  error:     'var(--color-error)',
+  warning:   'var(--color-warning)',
+  secondary: '#9c27b0',
+  info:      '#0288d1',
+}
+
+const INSIGHT_ACCENT_BG: Record<string, string> = {
+  error:     '#fdecea',
+  warning:   '#fff4e5',
+  secondary: '#f3e5f5',
+  info:      '#e1f5fe',
+}
+
+function MariaInsights() {
+  return (
+    <div className={styles.insightsSection}>
+      <div className={styles.insightsSectionHeader}>
+        <Icon name="AutoAwesome" size="sm" color="primary" />
+        <span className={styles.insightsSectionTitle}>Member Insights</span>
+      </div>
+      <div className={styles.insightsGrid}>
+        {MARIA_INSIGHTS.map(ins => {
+          const accent = INSIGHT_ACCENT[ins.statusColor]
+          const accentBg = INSIGHT_ACCENT_BG[ins.statusColor]
+          return (
+            <div key={ins.id} className={styles.insightCard} style={{ borderTopColor: accent }}>
+              <div className={styles.insightCardHeader}>
+                <Icon name={ins.icon as never} size="sm" sx={{ color: accent }} />
+                <span className={styles.insightDomain}>{ins.domain}</span>
+              </div>
+              <p className={styles.insightSummary}>{ins.summary}</p>
+              <span className={styles.insightReason}>
+                <Icon name="Info" size="xs" color="disabled" />
+                {ins.reason}
+              </span>
+            </div>
+          )
+        })}
+      </div>
+    </div>
+  )
+}
+
+export function MariaTodaysTasks({ onPrompt }: { onPrompt: (text: string) => void }) {
+  return (
+    <div className={styles.root}>
+      <Day2 onPrompt={onPrompt} />
+      <MariaInsights />
     </div>
   )
 }

@@ -436,8 +436,10 @@
 
 .queueTitle {
   flex: 1;
+  font-family: var(--font-family-base);
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
 }
 
 .queueHeaderReview {
@@ -503,8 +505,9 @@
 
 .queueAction {
   font-family: var(--font-family-base);
-  font-size: var(--font-size-xs);
-  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
 }
 
 .sageStepsLabel {
@@ -804,6 +807,92 @@
   outline: 2px solid var(--color-primary);
   outline-offset: 2px;
   border-radius: var(--radius-sm);
+}
+
+/* ── Member Insights grid ─────────────────────────────── */
+
+.insightsSection {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-2);
+}
+
+.insightsSectionHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-2);
+  padding: 0 2px;
+}
+
+.insightsSectionTitle {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.insightsGrid {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.insightCard {
+  background: var(--color-background);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  border-top: 3px solid transparent;
+  border-radius: var(--radius-sm);
+  padding: 10px 12px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.insightCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.insightDomain {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  flex: 1;
+}
+
+.insightChip {
+  font-family: var(--font-family-base);
+  font-size: 10px;
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  padding: 2px 7px;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.insightSummary {
+  margin: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.insightReason {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-family-base);
+  font-size: 10px;
+  color: var(--color-text-disabled);
+  margin-top: 2px;
+  border-top: 1px solid rgba(0, 0, 0, 0.06);
+  padding-top: 6px;
 }
 
 /* ── Monthly Intake ────────────────────────────────────── */
