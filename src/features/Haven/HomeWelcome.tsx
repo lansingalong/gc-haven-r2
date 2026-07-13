@@ -426,210 +426,231 @@ function Day1({ onPrompt, alerts = ALERTS }: { onPrompt: (text: string) => void;
   )
 }
 
-function Day2(_: { onPrompt: (text: string) => void }) {
-  const [checked, setChecked] = useState<Set<string>>(new Set())
-  const [automated, setAutomated] = useState<Set<string>>(new Set())
-  const [running, setRunning] = useState<Set<string>>(new Set())
-  const [completed, setCompleted] = useState<Set<string>>(new Set())
-  const [allDone, setAllDone] = useState(false)
+type ErStep = 'idle' | 'time' | 'custom' | 'type' | 'confirmed'
 
-  function toggle(id: string) {
-    setChecked(prev => { const next = new Set(prev); next.has(id) ? next.delete(id) : next.add(id); return next })
+const ER_CALL_TYPES = ['Phone', 'Video', 'In-person']
+
+const ER_TIME_SLOTS = [
+  { label: 'Thu Jun 12', date: '2026-06-12', time: '10:00', display: '10:00 AM' },
+  { label: 'Thu Jun 12', date: '2026-06-12', time: '11:30', display: '11:30 AM' },
+  { label: 'Fri Jun 13', date: '2026-06-13', time: '09:30', display: '9:30 AM' },
+  { label: 'Fri Jun 13', date: '2026-06-13', time: '10:30', display: '10:30 AM' },
+  { label: 'Mon Jun 16', date: '2026-06-16', time: '10:00', display: '10:00 AM' },
+]
+
+function formatCustomTime(date: string, time: string): string {
+  if (!date || !time) return ''
+  const d = new Date(`${date}T${time}`)
+  return d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) +
+    ' · ' +
+    d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
+}
+
+function ErScheduler() {
+  const [step, setStep] = useState<ErStep>('idle')
+  const [time, setTime] = useState('')
+  const [callType, setCallType] = useState('Phone')
+  const [customDate, setCustomDate] = useState('2026-06-12')
+  const [customTime, setCustomTime] = useState('10:00')
+
+  const checked = step !== 'idle'
+
+  function handleCheck() {
+    if (step === 'idle') setStep('time')
+    else { setStep('idle'); setTime('') }
   }
 
-  function handleAutomate() {
-    const queue = MARIA_ALERTS.filter(a => a.automate && checked.has(a.id))
-    if (queue.length === 0) return
-    setChecked(prev => { const next = new Set(prev); queue.forEach(a => next.delete(a.id)); return next })
-    setRunning(new Set(queue.map(a => a.id)))
-    setCompleted(new Set())
-    setAllDone(false)
-    queue.forEach((a, i) => {
-      setTimeout(() => {
-        setRunning(prev => { const next = new Set(prev); next.delete(a.id); return next })
-        setCompleted(prev => { const next = new Set(prev); next.add(a.id); return next })
-        if (i === queue.length - 1) {
-          setTimeout(() => {
-            setAllDone(true)
-            setAutomated(prev => { const next = new Set(prev); queue.forEach(q => next.add(q.id)); return next })
-          }, 400)
-        }
-      }, (i + 1) * 1200)
-    })
+  function selectTime(t: string) {
+    setTime(t)
+    setStep('type')
   }
 
-  const uncheckedAlerts = MARIA_ALERTS.filter(a => !checked.has(a.id) && !automated.has(a.id))
-  const automateQueue = MARIA_ALERTS.filter(a => a.automate && checked.has(a.id))
-  const reviewQueue = MARIA_ALERTS.filter(a => !a.automate && checked.has(a.id))
-  const automatedItems = MARIA_ALERTS.filter(a => automated.has(a.id))
+  function submitCustom() {
+    const formatted = formatCustomTime(customDate, customTime)
+    if (!formatted) return
+    setTime(formatted)
+    setStep('type')
+  }
+
+  function confirmType() {
+    setStep('confirmed')
+  }
+
+  return (
+    <>
+      <button
+        type="button"
+        className={`${styles.alertAction} ${styles.alertActionMd} ${checked ? styles.alertActionChecked : ''}`}
+        onClick={handleCheck}
+        aria-pressed={checked}
+        disabled={step === 'confirmed'}
+      >
+        <Icon
+          name={step === 'confirmed' ? 'CheckBox' : checked ? 'CheckBox' : 'CheckBoxOutlineBlank'}
+          size="sm"
+          color={step === 'confirmed' || checked ? 'primary' : 'action'}
+        />
+        Schedule a follow-up call to review discharge plan
+      </button>
+
+      {step === 'time' && (
+        <div className={styles.erScheduler}>
+          <span className={styles.erPlainLabel}>Maria prefers mid-morning calls. Here are some open slots:</span>
+          <div className={styles.erChips}>
+            {ER_TIME_SLOTS.map(({ label, date, time: t, display }) => (
+              <button key={date + t} type="button" className={styles.erChip} onClick={() => selectTime(`${label} · ${display}`)}>{label} · {display}</button>
+            ))}
+            <button type="button" className={styles.erChip} onClick={() => setStep('custom')}>Choose my own</button>
+          </div>
+        </div>
+      )}
+
+      {step === 'custom' && (
+        <div className={styles.erScheduler}>
+          <div className={styles.erBubble}>Pick a date and time:</div>
+          <div className={styles.erDateTimeRow}>
+            <input
+              className={styles.erDateInput}
+              type="date"
+              value={customDate}
+              min="2026-06-10"
+              onChange={e => setCustomDate(e.target.value)}
+              aria-label="Date"
+            />
+            <input
+              className={styles.erTimeInput}
+              type="time"
+              value={customTime}
+              onChange={e => setCustomTime(e.target.value)}
+              aria-label="Time"
+            />
+          </div>
+          <div className={styles.erChips}>
+            <button type="button" className={styles.erChip} onClick={submitCustom}>Confirm</button>
+          </div>
+        </div>
+      )}
+
+      {step === 'type' && (
+        <div className={styles.erScheduler}>
+          <div className={styles.erBubble}>
+            What type of follow-up?
+          </div>
+          <div className={styles.erChips}>
+            {ER_CALL_TYPES.map(t => (
+              <button
+                key={t}
+                type="button"
+                className={`${styles.erChip} ${callType === t ? styles.erChipSelected : ''}`}
+                onClick={() => setCallType(t)}
+              >{t}</button>
+            ))}
+          </div>
+          <div className={styles.erChips}>
+            <button type="button" className={styles.erChip} onClick={confirmType}>Confirm</button>
+          </div>
+        </div>
+      )}
+
+      {step === 'confirmed' && (
+        <div className={styles.erScheduler}>
+          <div className={styles.erConfirmed}>
+            <Icon name="CheckCircle" size="sm" color="primary" />
+            <span>
+              {callType} call scheduled for <strong>{time}</strong>
+            </span>
+          </div>
+        </div>
+      )}
+    </>
+  )
+}
+
+function Day2({ onPrompt: _onPrompt }: { onPrompt: (text: string) => void }) {
+  const [medDone, setMedDone] = useState(false)
 
   return (
     <div className={styles.cards}>
-      <Card icon="TaskAlt" iconColor="primary" title="Today's Tasks">
-        {MARIA_ALERTS.map(a => {
-          const isChecked = checked.has(a.id)
-          const isDone = automated.has(a.id)
-          return (
-            <div key={a.id} className={`${styles.alertItem} ${isDone ? styles.alertItemDone : ''}`}>
-              <div className={styles.alertRow}>
-                <span className={`${styles.alertDot} ${styles[a.severity]}`} aria-hidden="true" />
-                <span className={styles.actionText}>
-                  <span className={styles.alertLabel}>{a.label}</span>
-                  <span className={styles.alertDetail}> - {a.detail}</span>
-                </span>
+
+      <div className={styles.sectionLabel}>Today's Tasks</div>
+
+      {/* Card 1: Urgent — ER visit */}
+      <div className={styles.card}>
+        <div className={styles.taskCardHeader}>
+          <span className={styles.taskCardDot} style={{ background: 'var(--color-error, #d32f2f)' }} aria-hidden="true" />
+          <div className={styles.taskCardMeta}>
+            <span className={styles.taskCardTitle}>ER Visit</span>
+            <span className={styles.taskCardSub}>Visited ER on Jun 9 · fluid overload</span>
+          </div>
+        </div>
+        <div className={styles.taskCardBody}>
+          <ErScheduler />
+        </div>
+      </div>
+
+      {/* Card 2: Review required — medication */}
+      <div className={`${styles.card} ${medDone ? styles.cardDone : ''}`}>
+        <div className={styles.taskCardHeader}>
+          <span className={styles.taskCardDot} style={{ background: 'var(--color-warning, #ed6c02)' }} aria-hidden="true" />
+          <div className={styles.taskCardMeta}>
+            <span className={styles.taskCardTitle}>New Medication</span>
+            <span className={styles.taskCardSub}>Furosemide 40mg prescribed at discharge</span>
+          </div>
+        </div>
+        <div className={styles.taskCardBody}>
+          <button
+            type="button"
+            className={styles.medAction}
+            onClick={() => { navigateToMedications('maria-rivera'); setMedDone(true) }}
+            disabled={medDone}
+          >
+            Add Furosemide 40mg to medication list and update care plan
+            <Icon name="OpenInNew" size="xs" color="primary" />
+          </button>
+          <span className={styles.noteMeta}>Last reconciliation: Jun 8, 2026</span>
+          {medDone && (
+            <div className={styles.erScheduler}>
+              <div className={styles.erConfirmed}>
+                <Icon name="CheckCircle" size="sm" color="primary" />
+                <span>Opened medications for review</span>
               </div>
-              <button
-                className={`${styles.alertAction} ${isChecked ? styles.alertActionChecked : ''}`}
-                type="button"
-                onClick={() => toggle(a.id)}
-                aria-pressed={isChecked}
-                disabled={isDone}
-              >
-                <Icon name={isDone || isChecked ? 'CheckBox' : 'CheckBoxOutlineBlank'} size="sm" color={isDone || isChecked ? 'primary' : 'action'} />
-                {a.action}
-              </button>
-              {a.id === 'maria-gap' && (
-                <span className={styles.noteMeta} style={{ paddingLeft: '24px' }}>Last reconciliation: Jun 8, 2026</span>
-              )}
             </div>
-          )
-        })}
+          )}
+        </div>
+      </div>
 
-        {DAY2_TASKS.map(t => (
-          <div key={t.text} className={styles.actionRowStatic}>
-            <Icon name={t.icon as never} size="sm" color="action" />
-            <div className={styles.taskRowContent}>
-              <span className={styles.actionText}>{t.text}</span>
-            </div>
-            <span className={`${styles.dueBadge} ${t.due === 'Today' ? styles.dueToday : ''}`}>{t.due}</span>
-          </div>
-        ))}
 
-        {uncheckedAlerts.length > 0 && (
-          <div className={styles.addAllRow}>
-            <button className={styles.addAllBtn} type="button" onClick={() => setChecked(new Set(uncheckedAlerts.map(a => a.id)))}>Add all</button>
-          </div>
-        )}
-
-        {(automateQueue.length > 0 || running.size > 0 || completed.size > 0) && !allDone && (
-          <div className={styles.queueSection}>
-            <div className={styles.queueHeader}>
-              <Icon name="AutoAwesome" size="sm" color="primary" />
-              <span className={styles.queueTitle}>Tasks ({automateQueue.length + running.size + completed.size})</span>
-              {automateQueue.length > 0 && running.size === 0 && (
-                <button className={styles.automateAllBtn} type="button" onClick={handleAutomate}>
-                  <Icon name="PlayArrow" size="sm" color="inverse" />
-                  Run Tasks
-                </button>
-              )}
-            </div>
-            <div className={styles.queueItems}>
-              {[...automateQueue, ...MARIA_ALERTS.filter(a => running.has(a.id) || (completed.has(a.id) && !automated.has(a.id)))].map(a => {
-                const isRunning = running.has(a.id)
-                const isDone = completed.has(a.id)
-                return (
-                  <div key={a.id} className={`${styles.queueItem} ${isDone ? styles.queueItemDone : ''}`}>
-                    {isRunning ? (
-                      <span className={styles.queueItemSpinner} aria-label="Running" />
-                    ) : isDone ? (
-                      <Icon name="CheckCircle" size="sm" color="primary" />
-                    ) : (
-                      <button className={styles.queueItemCheck} type="button" onClick={() => toggle(a.id)} aria-label={`Remove ${a.action} from task list`}>
-                        <Icon name="CheckBox" size="sm" color="primary" />
-                      </button>
-                    )}
-                    <div className={styles.queueItemText}>
-                      <span className={`${styles.queueAction} ${isRunning ? styles.queueActionRunning : ''}`}>{a.action}</span>
-                    </div>
-                  </div>
-                )
-              })}
-            </div>
-          </div>
-        )}
-
-        {allDone && (
-          <div className={styles.allDoneBanner}>
-            <Icon name="CheckCircle" size="sm" color="primary" />
-            <span>Complete!</span>
-          </div>
-        )}
-
-        {reviewQueue.length > 0 && (
-          <div className={styles.queueSection}>
-            <div className={`${styles.queueHeader} ${styles.queueHeaderReview}`}>
-              <Icon name="PersonSearch" size="sm" color="action" />
-              <span className={styles.queueTitle}>Requires your review ({reviewQueue.length})</span>
-            </div>
-            <div className={styles.queueItems}>
-              {reviewQueue.map(a => (
-                <div key={a.id} className={styles.queueItem}>
-                  <button className={styles.queueItemCheck} type="button" onClick={() => toggle(a.id)} aria-label={`Remove ${a.action} from review list`}>
-                    <Icon name="CheckBox" size="sm" color="primary" />
-                  </button>
-                  <div className={styles.queueItemText}>
-                    {a.medicationLink ? (
-                      <button className={styles.medicationLink} type="button" onClick={() => navigateToMedications(a.memberId)}>
-                        {a.action}
-                        <Icon name="OpenInNew" size="sm" color="primary" />
-                      </button>
-                    ) : (
-                      <span className={styles.queueAction}>{a.action}</span>
-                    )}
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
-
-        {automatedItems.length > 0 && (
-          <div className={styles.automatedBanner}>
-            <Icon name="CheckCircle" size="sm" color="primary" />
-            <span>{automatedItems.length} task{automatedItems.length > 1 ? 's' : ''} being handled by Haven</span>
-          </div>
-        )}
-      </Card>
-    </div>
+</div>
   )
 }
 
 const MARIA_INSIGHTS = [
   {
     id: 'i-1',
-    icon: 'MonitorHeart',
-    domain: 'Cardiac',
-    status: 'High risk',
+    icon: 'Receipt',
+    domain: 'Claims',
+    status: 'ER visit',
     statusColor: 'error' as const,
-    summary: 'ER visit 6/9, +6 lb in 4 days. Discharged on Furosemide 40mg — new medication.',
-    reason: 'ER discharge summary · Jun 9, 2026',
+    summary: 'ER visit Jun 9 billed under CHF exacerbation (I50.9). 1-day observation. Furosemide 40mg added at discharge. Prior ER visit Feb 2026 — same primary dx.',
+    reason: 'Claims data · Jun 9, 2026',
+  },
+  {
+    id: 'i-2',
+    icon: 'Assignment',
+    domain: 'Assessment',
+    status: 'Recent',
+    statusColor: 'warning' as const,
+    summary: 'HRA completed Feb 3, 2026. PHQ-9: 10 (moderate). Reports low activity, poor sleep, and difficulty affording low-sodium foods. Declined BH referral.',
+    reason: 'HRA · Feb 3, 2026',
   },
   {
     id: 'i-3',
-    icon: 'Bloodtype',
-    domain: 'Metabolic',
-    status: 'Suboptimal',
-    statusColor: 'warning' as const,
-    summary: 'A1C 8.2% (Mar 2026). Dietary adherence barriers. No endocrinology referral on file.',
-    reason: 'Lab result · Mar 14, 2026',
-  },
-  {
-    id: 'i-4',
-    icon: 'Psychology',
-    domain: 'Behavioral',
-    status: 'Flagged',
-    statusColor: 'secondary' as const,
-    summary: 'PHQ-9: 10. Widowed Oct 2024, social isolation. Declined BH referral in April.',
-    reason: 'Care manager note · Apr 22, 2026',
-  },
-  {
-    id: 'i-5',
-    icon: 'Home',
-    domain: 'SDOH',
-    status: 'Active',
-    statusColor: 'info' as const,
-    summary: 'Lives alone. 2 missed PCP visits this year. Relies on Medicaid transport.',
-    reason: 'HRA · Feb 3, 2026',
+    icon: 'MonitorHeart',
+    domain: 'Health Risk',
+    status: 'High',
+    statusColor: 'error' as const,
+    summary: 'Tier 4 — High risk. BNP 420 pg/mL at admission (Jun 9). Weight +6 lbs in 4 days pre-visit. BP 158/96 at last reading. CHF readmission risk elevated.',
+    reason: 'Clinical history · Jun 9, 2026',
   },
 ]
 
@@ -647,7 +668,12 @@ const INSIGHT_ACCENT_BG: Record<string, string> = {
   info:      '#e1f5fe',
 }
 
-function MariaInsights() {
+const CLAIMS_LINKS = [
+  { label: 'View ER claim details', query: "Show me Maria's authorization and claims history" },
+  { label: 'View prior ER visits', query: 'Catch me up on recent ER visits or hospitalizations' },
+]
+
+function MariaInsights({ onPrompt }: { onPrompt: (text: string) => void }) {
   return (
     <div className={styles.insightsSection}>
       <div className={styles.insightsSectionHeader}>
@@ -656,15 +682,22 @@ function MariaInsights() {
       </div>
       <div className={styles.insightsGrid}>
         {MARIA_INSIGHTS.map(ins => {
-          const accent = INSIGHT_ACCENT[ins.statusColor]
-          const accentBg = INSIGHT_ACCENT_BG[ins.statusColor]
           return (
-            <div key={ins.id} className={styles.insightCard} style={{ borderTopColor: accent }}>
+            <div key={ins.id} className={styles.insightCard}>
               <div className={styles.insightCardHeader}>
-                <Icon name={ins.icon as never} size="sm" sx={{ color: accent }} />
+                <Icon name={ins.icon as never} size="sm" color="action" />
                 <span className={styles.insightDomain}>{ins.domain}</span>
               </div>
               <p className={styles.insightSummary}>{ins.summary}</p>
+              {ins.id === 'i-1' && (
+                <div className={styles.insightLinkRow}>
+                  {CLAIMS_LINKS.map(c => (
+                    <button key={c.label} type="button" className={styles.insightLink} onClick={() => onPrompt(c.query)}>
+                      {c.label}
+                    </button>
+                  ))}
+                </div>
+              )}
               <span className={styles.insightReason}>
                 <Icon name="Info" size="xs" color="disabled" />
                 {ins.reason}
@@ -681,7 +714,7 @@ export function MariaTodaysTasks({ onPrompt }: { onPrompt: (text: string) => voi
   return (
     <div className={styles.root}>
       <Day2 onPrompt={onPrompt} />
-      <MariaInsights />
+      <MariaInsights onPrompt={onPrompt} />
     </div>
   )
 }

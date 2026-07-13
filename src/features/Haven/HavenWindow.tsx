@@ -661,6 +661,32 @@ export function HavenWindow({
 
     const userMsg: Message = { id: `u-${Date.now()}`, role: 'user', content: trimmed }
 
+    // ER discharge — detect free-text custom time entry after the custom time prompt
+    const lastAssistantMsg = [...messages].reverse().find(m => m.role === 'assistant')
+    const awaitingCustomErTime = lastAssistantMsg?.content?.includes('What date and time works for you?')
+    if (awaitingCustomErTime && !resolvedText.startsWith('__')) {
+      const firstName = memberName.split(' ')[0]
+      setMessages(prev => [...prev, userMsg])
+      setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false)
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setLoading(false)
+      if (cancelledRef.current) return
+      postToIframe({ type: 'HAVEN_ADD_ACTIVITY', activityType: 'Follow-up Call', contactType: 'Member - Phone', scheduledDate: resolvedText })
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: `Follow-up call scheduled for ${firstName} on ${resolvedText}.\n\nI've added this to your activity list. A few things to confirm on the call:\n• Furosemide 40mg — confirm she filled and started the prescription\n• Daily weight log — she should alert her care team if she gains 2+ lbs in a day\n• Red flag symptoms — shortness of breath, swelling, or chest pain means go back to the ER\n• Cardiologist follow-up — confirm she has an appointment scheduled`,
+        followUp: 'Would you like to do anything else to prep for this call?',
+        followUpChips: [
+          { label: 'Prepare me for the call', query: 'Prepare me for a follow-up call' },
+          { label: "See Maria's medications", query: "What is Maria's current medication list?" },
+          { label: "See Maria's care plan", query: "Review member's current care plan" },
+        ],
+      }])
+      return
+    }
+
     // Real backend: show typing indicator while awaiting the network call
     if (onSend) {
       setMessages(prev => [...prev, userMsg])
@@ -777,6 +803,96 @@ export function HavenWindow({
           { label: 'A compliance audit', query: 'Help me with a compliance audit for this member' },
           { label: 'A handoff summary', query: 'Help me with a handoff summary for this member' },
           { label: 'Help with closing this case', query: 'Help me with closing this case' },
+        ],
+      }])
+      return
+    }
+
+    // ER discharge follow-up scheduling flow
+    if (/^schedule a follow-up call to review discharge plan$/i.test(resolvedText.trim())) {
+      const firstName = memberName.split(' ')[0]
+      setMessages(prev => [...prev, userMsg])
+      setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false)
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setLoading(false)
+      if (cancelledRef.current) return
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: `${firstName} was discharged on June 9th after an ER visit for fluid overload. Post-discharge protocol recommends a follow-up call within 72 hours to review her discharge plan, new Furosemide prescription, and daily weight monitoring.\n\nWhat do you want to cover on this call?`,
+        followUpChips: [
+          { label: 'Discharge instructions & Furosemide', query: '__ER_FOCUS__discharge instructions and the new Furosemide prescription' },
+          { label: 'Daily weight monitoring', query: '__ER_FOCUS__daily weight monitoring and fluid management' },
+          { label: 'Full discharge review', query: '__ER_FOCUS__a full discharge review including medications, weight monitoring, and red flag symptoms' },
+        ],
+      }])
+      return
+    }
+
+    // ER discharge — focus selected, now recommend times
+    if (resolvedText.startsWith('__ER_FOCUS__')) {
+      const focus = resolvedText.slice('__ER_FOCUS__'.length)
+      const firstName = memberName.split(' ')[0]
+      setMessages(prev => [...prev, { ...userMsg, content: focus }])
+      setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false)
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setLoading(false)
+      if (cancelledRef.current) return
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: `Got it — I'll focus the call on ${focus}.\n\n${firstName}'s preferred contact time is mid-morning. Here are some available slots:\n\n• Thu, Jun 12 · 10:00 AM\n• Thu, Jun 12 · 11:30 AM\n• Fri, Jun 13 · 9:30 AM\n• Fri, Jun 13 · 10:30 AM\n\nWhich time works best, or enter your own?`,
+        followUpChips: [
+          { label: 'Thu Jun 12 · 10:00 AM', query: `__ER_SCHEDULE__Thu, Jun 12 at 10:00 AM__${focus}`, inlineRow: true },
+          { label: 'Thu Jun 12 · 11:30 AM', query: `__ER_SCHEDULE__Thu, Jun 12 at 11:30 AM__${focus}`, inlineRow: true },
+          { label: 'Fri Jun 13 · 9:30 AM', query: `__ER_SCHEDULE__Fri, Jun 13 at 9:30 AM__${focus}`, inlineRow: true },
+          { label: 'Fri Jun 13 · 10:30 AM', query: `__ER_SCHEDULE__Fri, Jun 13 at 10:30 AM__${focus}`, inlineRow: true },
+          { label: 'Choose my own time', query: '__ER_CUSTOM__' },
+        ],
+      }])
+      return
+    }
+
+    // ER discharge — custom time prompt
+    if (resolvedText === '__ER_CUSTOM__') {
+      setMessages(prev => [...prev, { ...userMsg, content: 'Choose my own time' }])
+      setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false)
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 300))
+      setLoading(false)
+      if (cancelledRef.current) return
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: 'What date and time works for you? You can type it in any format, e.g. "Monday June 16 at 2pm".',
+      }])
+      return
+    }
+
+    // ER discharge — time confirmed (chip selection)
+    if (resolvedText.startsWith('__ER_SCHEDULE__')) {
+      const parts = resolvedText.slice('__ER_SCHEDULE__'.length).split('__')
+      const time = parts[0]
+      const focus = parts[1] ?? 'discharge plan review'
+      const firstName = memberName.split(' ')[0]
+      setMessages(prev => [...prev, { ...userMsg, content: time }])
+      setMenuOpen(false); setSummarizeMenuOpen(false); setComplianceMenuOpen(false); setDocumentMenuOpen(false); setLearnMoreOpen(false)
+      setLoading(true)
+      await new Promise(resolve => setTimeout(resolve, 500))
+      setLoading(false)
+      if (cancelledRef.current) return
+      postToIframe({ type: 'HAVEN_ADD_ACTIVITY', activityType: 'Follow-up Call', contactType: 'Member - Phone', scheduledDate: time })
+      setMessages(prev => [...prev, {
+        id: `a-${Date.now()}`,
+        role: 'assistant' as const,
+        content: `Follow-up call scheduled for ${firstName} on ${time}.\n\nFocus: ${focus}\n\nI've added this to your activity list. A few things to confirm on the call:\n• Furosemide 40mg — confirm she filled and started the prescription\n• Daily weight log — she should alert her care team if she gains 2+ lbs in a day\n• Red flag symptoms — shortness of breath, swelling, or chest pain means go back to the ER\n• Cardiologist follow-up — confirm she has an appointment scheduled`,
+        followUp: 'Would you like to do anything else to prep for this call?',
+        followUpChips: [
+          { label: 'Prepare me for the call', query: 'Prepare me for a follow-up call' },
+          { label: "See Maria's medications", query: "What is Maria's current medication list?" },
+          { label: "See Maria's care plan", query: "Review member's current care plan" },
         ],
       }])
       return

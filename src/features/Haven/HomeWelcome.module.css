@@ -811,10 +811,18 @@
 
 /* ── Member Insights grid ─────────────────────────────── */
 
+.sectionLabel {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
 .insightsSection {
   display: flex;
   flex-direction: column;
   gap: var(--spacing-2);
+  margin-top: var(--spacing-4);
 }
 
 .insightsSectionHeader {
@@ -840,7 +848,6 @@
 .insightCard {
   background: var(--color-background);
   border: 1px solid rgba(0, 0, 0, 0.1);
-  border-top: 3px solid transparent;
   border-radius: var(--radius-sm);
   padding: 10px 12px 12px;
   display: flex;
@@ -873,6 +880,33 @@
   padding: 2px 7px;
   white-space: nowrap;
   flex-shrink: 0;
+}
+
+.insightLinkRow {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 2px 0;
+}
+
+.insightLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  text-align: left;
+}
+.insightLink:hover { opacity: 0.75; }
+.insightLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
 }
 
 .insightSummary {
@@ -1346,4 +1380,474 @@
   font-weight: var(--font-weight-medium);
   color: var(--color-primary);
   background: #fff;
+}
+
+/* ── Inline ER scheduling flow ── */
+.erScheduler {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.erBubble {
+  background: var(--color-surface-raised, #f5f5f5);
+  border-radius: 12px 12px 12px 4px;
+  padding: 10px 14px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-body);
+}
+
+.erPlainLabel {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-body);
+  padding: 4px 0;
+}
+
+.erChips {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.erChip {
+  padding: 6px 14px;
+  background: #ffffff;
+  border: 1.5px solid #BDBDBD;
+  border-radius: 999px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  transition: background var(--transition-fast), border-color var(--transition-fast);
+}
+
+.erChip:hover {
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.erChip:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.erChipSelected {
+  background: var(--color-primary, #1a5fb4);
+  border-color: var(--color-primary, #1a5fb4);
+  color: #ffffff;
+}
+
+.erChipSelected:hover {
+  background: var(--color-primary-hover, #154fa0);
+}
+
+.erInput {
+  display: flex;
+  gap: 6px;
+  align-items: center;
+}
+
+.erDateTimeRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.erDateInput,
+.erTimeInput {
+  padding: 7px 10px;
+  border: 1.5px solid #BDBDBD;
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  background: #ffffff;
+  outline: none;
+  cursor: pointer;
+}
+
+.erDateInput {
+  flex: 1;
+}
+
+.erDateInput:focus,
+.erTimeInput:focus {
+  border-color: var(--color-primary);
+}
+
+.erInputField {
+  flex: 1;
+  padding: 7px 12px;
+  border: 1.5px solid #BDBDBD;
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  outline: none;
+  background: #ffffff;
+}
+
+.erInputField:focus {
+  border-color: var(--color-primary);
+}
+
+.erInputSubmit {
+  padding: 7px 14px;
+  background: var(--color-primary, #1a5fb4);
+  border: none;
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: #ffffff;
+  cursor: pointer;
+  transition: background var(--transition-fast);
+}
+
+.erInputSubmit:hover {
+  background: var(--color-primary-hover, #154fa0);
+}
+
+.erInputSubmit:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.erConfirmed {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--color-success-light, #e8f5e9);
+  border-radius: var(--radius-md, 8px);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: var(--line-height-body);
+}
+
+/* ── Per-task cards (Day2 redesign) ── */
+.taskCardHeader {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 14px 10px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.taskCardDot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.taskCardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+  flex: 1;
+  min-width: 0;
+}
+
+.taskCardTitle {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.taskCardSub {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.taskCardBadge {
+  flex-shrink: 0;
+  font-family: var(--font-family-base);
+  font-size: 11px;
+  font-weight: var(--font-weight-medium);
+  border-radius: var(--radius-full);
+  padding: 2px 9px;
+  white-space: nowrap;
+}
+
+.taskCardBody {
+  padding: 10px 14px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.taskCardAction {
+  margin: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: 1.45;
+}
+
+.taskCardFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.taskCardLink {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.taskCardLink:hover { opacity: 0.75; }
+.taskCardLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.alertActionMd {
+  font-size: var(--font-size-sm);
+}
+
+.medAction {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-regular);
+  color: var(--color-primary);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  cursor: pointer;
+  text-align: left;
+  line-height: 1.45;
+}
+.medAction:hover { opacity: 0.75; }
+.medAction:disabled { opacity: 0.5; cursor: default; }
+.medAction:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.taskCardDoneLabel {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-primary);
+}
+
+.cardDone {
+  opacity: 0.6;
+}
+
+/* ── ErScheduler redesign ── */
+.erStartBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 14px;
+  background: var(--color-action-hover, rgba(0,0,0,0.04));
+  border: 1.5px solid var(--color-primary, #1a5fb4);
+  border-radius: var(--radius-full);
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary, #1a5fb4);
+  cursor: pointer;
+  align-self: flex-start;
+  transition: background var(--transition-fast);
+}
+.erStartBtn:hover { background: rgba(26, 95, 180, 0.08); }
+.erStartBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.erPanel {
+  background: var(--color-surface-raised, #f8f8f8);
+  border: 1px solid rgba(0,0,0,0.08);
+  border-radius: 10px;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.erPanelHeader {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.erPanelLabel {
+  flex: 1;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-primary, #1a5fb4);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.erBackBtn {
+  background: none;
+  border: none;
+  padding: 2px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  border-radius: var(--radius-sm);
+  color: var(--color-text-secondary);
+}
+.erBackBtn:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.erQuestion {
+  margin: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  line-height: 1.45;
+}
+
+.erOptions {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.erOption {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 12px;
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  color: var(--color-text-primary);
+  cursor: pointer;
+  text-align: left;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.erOption:hover {
+  border-color: var(--color-primary, #1a5fb4);
+  background: rgba(26, 95, 180, 0.03);
+}
+.erOption:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.erTimeGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+
+.erTimeSlot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 10px 8px;
+  background: #fff;
+  border: 1.5px solid rgba(0,0,0,0.1);
+  border-radius: 8px;
+  cursor: pointer;
+  transition: border-color var(--transition-fast), background var(--transition-fast);
+}
+.erTimeSlot:hover {
+  border-color: var(--color-primary, #1a5fb4);
+  background: rgba(26, 95, 180, 0.03);
+}
+.erTimeSlot:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+}
+
+.erTimeDate {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
+}
+
+.erTimeHour {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.erCustomLink {
+  background: none;
+  border: none;
+  padding: 0;
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  color: var(--color-primary, #1a5fb4);
+  cursor: pointer;
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  align-self: flex-start;
+}
+.erCustomLink:focus-visible {
+  outline: 2px solid var(--color-primary);
+  outline-offset: 2px;
+  border-radius: var(--radius-sm);
+}
+
+.erInputRow {
+  display: flex;
+  gap: 6px;
+}
+
+.erConfirmedText {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.erConfirmedTitle {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-primary);
+}
+
+.erConfirmedSub {
+  font-family: var(--font-family-base);
+  font-size: var(--font-size-xs);
+  color: var(--color-text-secondary);
 }
