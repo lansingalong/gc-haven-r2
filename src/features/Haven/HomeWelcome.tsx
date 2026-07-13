@@ -446,7 +446,7 @@ function formatCustomTime(date: string, time: string): string {
     d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' })
 }
 
-function ErScheduler() {
+function ErScheduler({ onConfirmed }: { onConfirmed?: () => void }) {
   const [step, setStep] = useState<ErStep>('idle')
   const [time, setTime] = useState('')
   const [callType, setCallType] = useState('Phone')
@@ -474,6 +474,7 @@ function ErScheduler() {
 
   function confirmType() {
     setStep('confirmed')
+    onConfirmed?.()
   }
 
   return (
@@ -553,10 +554,19 @@ function ErScheduler() {
       )}
 
       {step === 'confirmed' && (
-        <span className={styles.medAction} style={{ pointerEvents: 'none', paddingLeft: 32 }}>
-          Follow-up call scheduled for {time}
-          <Icon name="OpenInNew" size="xs" color="primary" />
-        </span>
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 32 }}>
+          <span className={styles.medAction} style={{ pointerEvents: 'none' }}>
+            Follow-up call scheduled for {time}
+            <Icon name="OpenInNew" size="xs" color="primary" />
+          </span>
+          <button
+            type="button"
+            className={styles.erCustomLink}
+            onClick={() => { setStep('time'); setTime('') }}
+          >
+            Edit
+          </button>
+        </div>
       )}
     </>
   )
@@ -564,6 +574,8 @@ function ErScheduler() {
 
 function Day2({ onPrompt: _onPrompt }: { onPrompt: (text: string) => void }) {
   const [medDone, setMedDone] = useState(false)
+  const [erDone, setErDone] = useState(false)
+  const [erExpanded, setErExpanded] = useState(true)
 
   return (
     <div className={styles.cards}>
@@ -572,15 +584,27 @@ function Day2({ onPrompt: _onPrompt }: { onPrompt: (text: string) => void }) {
 
       {/* Card 1: Urgent — ER visit */}
       <div className={styles.card}>
-        <div className={styles.taskCardHeader}>
-          <span className={styles.taskCardDot} style={{ background: 'var(--color-error, #d32f2f)' }} aria-hidden="true" />
+        <button
+          type="button"
+          className={styles.taskCardHeader}
+          style={{ width: '100%', background: 'none', border: 'none', cursor: erDone ? 'pointer' : 'default', textAlign: 'left', padding: '12px 14px 10px', display: 'flex', alignItems: 'center', gap: 10 }}
+          onClick={() => erDone && setErExpanded(e => !e)}
+          aria-expanded={erExpanded}
+        >
+          {erDone
+            ? <Icon name="CheckCircle" size="sm" color="primary" />
+            : <span className={styles.taskCardDot} style={{ background: 'var(--color-error, #d32f2f)' }} aria-hidden="true" />
+          }
           <div className={styles.taskCardMeta}>
             <span className={styles.taskCardTitle}>ER Visit</span>
             <span className={styles.taskCardSub}>Visited ER on Jun 9 · fluid overload</span>
           </div>
-        </div>
-        <div className={styles.taskCardBody}>
-          <ErScheduler />
+          {erDone && (
+            <Icon name={erExpanded ? 'ExpandLess' : 'ExpandMore'} size="sm" color="action" />
+          )}
+        </button>
+        <div className={styles.taskCardBody} style={{ display: erDone && !erExpanded ? 'none' : undefined }}>
+          <ErScheduler onConfirmed={() => { setErDone(true); setErExpanded(false) }} />
         </div>
       </div>
 
