@@ -546,21 +546,17 @@ function ErScheduler() {
               >{t}</button>
             ))}
           </div>
-          <div className={styles.erChips}>
-            <button type="button" className={styles.erChip} onClick={confirmType}>Confirm</button>
+          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
+            <button type="button" className={styles.automateAllBtn} style={{ borderRadius: 4 }} onClick={confirmType}>Confirm</button>
           </div>
         </div>
       )}
 
       {step === 'confirmed' && (
-        <div className={styles.erScheduler}>
-          <div className={styles.erConfirmed}>
-            <Icon name="CheckCircle" size="sm" color="primary" />
-            <span>
-              {callType} call scheduled for <strong>{time}</strong>
-            </span>
-          </div>
-        </div>
+        <span className={styles.medAction} style={{ pointerEvents: 'none', paddingLeft: 32 }}>
+          Follow-up call scheduled for {time}
+          <Icon name="OpenInNew" size="xs" color="primary" />
+        </span>
       )}
     </>
   )
