@@ -2,6 +2,7 @@ import { useState } from 'react'
 import { Icon } from '@/components/Icons'
 import { Typography } from '@/components'
 import { AddActivityModal, type ActivityConfig } from './AddActivityModal'
+import { AddMedicationModal } from './AddMedicationModal'
 import styles from './HomeWelcome.module.css'
 
 export interface HomeWelcomeProps {
@@ -115,7 +116,8 @@ function Card({ icon, iconColor, title, defaultOpen = true, action, children }: 
 }
 
 function navigateToMedications(memberId: string) {
-  window.parent.postMessage({ type: 'MEMBER_SWITCH_TAB', memberId, tab: 'medications' }, '*')
+  const iframe = document.querySelector('iframe') as HTMLIFrameElement | null
+  iframe?.contentWindow?.postMessage({ type: 'MEMBER_SWITCH_TAB', memberId, tab: 'medications' }, '*')
 }
 
 function Day0({ onPrompt }: { onPrompt: (text: string) => void }) {
@@ -426,9 +428,7 @@ function Day1({ onPrompt, alerts = ALERTS }: { onPrompt: (text: string) => void;
   )
 }
 
-type ErStep = 'idle' | 'time' | 'custom' | 'type' | 'confirmed'
-
-const ER_CALL_TYPES = ['Phone', 'Video', 'In-person']
+type ErStep = 'idle' | 'time' | 'custom' | 'confirmed'
 
 const ER_TIME_SLOTS = [
   { label: 'Thu Jun 12', date: '2026-06-12', time: '10:00', display: '10:00 AM' },
@@ -449,7 +449,6 @@ function formatCustomTime(date: string, time: string): string {
 function ErScheduler({ onConfirmed }: { onConfirmed?: () => void }) {
   const [step, setStep] = useState<ErStep>('idle')
   const [time, setTime] = useState('')
-  const [callType, setCallType] = useState('Phone')
   const [customDate, setCustomDate] = useState('2026-06-12')
   const [customTime, setCustomTime] = useState('10:00')
 
@@ -462,17 +461,14 @@ function ErScheduler({ onConfirmed }: { onConfirmed?: () => void }) {
 
   function selectTime(t: string) {
     setTime(t)
-    setStep('type')
+    setStep('confirmed')
+    onConfirmed?.()
   }
 
   function submitCustom() {
     const formatted = formatCustomTime(customDate, customTime)
     if (!formatted) return
     setTime(formatted)
-    setStep('type')
-  }
-
-  function confirmType() {
     setStep('confirmed')
     onConfirmed?.()
   }
@@ -532,27 +528,6 @@ function ErScheduler({ onConfirmed }: { onConfirmed?: () => void }) {
         </div>
       )}
 
-      {step === 'type' && (
-        <div className={styles.erScheduler}>
-          <div className={styles.erBubble}>
-            What type of follow-up?
-          </div>
-          <div className={styles.erChips}>
-            {ER_CALL_TYPES.map(t => (
-              <button
-                key={t}
-                type="button"
-                className={`${styles.erChip} ${callType === t ? styles.erChipSelected : ''}`}
-                onClick={() => setCallType(t)}
-              >{t}</button>
-            ))}
-          </div>
-          <div style={{ display: 'flex', justifyContent: 'flex-end' }}>
-            <button type="button" className={styles.automateAllBtn} style={{ borderRadius: 4 }} onClick={confirmType}>Confirm</button>
-          </div>
-        </div>
-      )}
-
       {step === 'confirmed' && (
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingLeft: 32 }}>
           <span className={styles.medAction} style={{ pointerEvents: 'none' }}>
@@ -576,8 +551,10 @@ function Day2({ onPrompt: _onPrompt }: { onPrompt: (text: string) => void }) {
   const [medDone, setMedDone] = useState(false)
   const [erDone, setErDone] = useState(false)
   const [erExpanded, setErExpanded] = useState(true)
+  const [showMedModal, setShowMedModal] = useState(false)
 
   return (
+    <>
     <div className={styles.cards}>
 
       <div className={styles.sectionLabel}>Today's Tasks</div>
@@ -621,7 +598,7 @@ function Day2({ onPrompt: _onPrompt }: { onPrompt: (text: string) => void }) {
           <button
             type="button"
             className={styles.medAction}
-            onClick={() => { navigateToMedications('maria-rivera'); setMedDone(true) }}
+            onClick={() => { navigateToMedications('maria-rivera'); setShowMedModal(true) }}
             disabled={medDone}
           >
             Add Furosemide 40mg to medication list and update care plan
@@ -639,8 +616,16 @@ function Day2({ onPrompt: _onPrompt }: { onPrompt: (text: string) => void }) {
         </div>
       </div>
 
-
-</div>
+    </div>
+    {showMedModal && (
+      <AddMedicationModal
+        memberName="Maria Rivera"
+        dob="07/22/1958"
+        memberId="AH72940158"
+        onClose={() => setShowMedModal(false)}
+      />
+    )}
+    </>
   )
 }
 

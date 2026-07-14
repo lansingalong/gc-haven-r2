@@ -4882,6 +4882,12 @@ function openScriptResponseModal() {
     if (e.data && e.data.type === 'SUKI_NOTE_READY' && window._gcOpenSukiNote) {
       window._gcOpenSukiNote(e.data.noteText || '');
     }
+    if (e.data && e.data.type === 'MEMBER_SWITCH_TAB' && e.data.tab) {
+      var leftItem = document.querySelector('.gc-left-item[data-left="health"]');
+      if (leftItem) leftItem.click();
+      var htab = document.querySelector('#healthTabs .gc-tab[data-htab="' + e.data.tab + '"]');
+      if (htab) htab.click();
+    }
   });
 
   // Also listen via storage event (fallback for cross-tab on same origin)
